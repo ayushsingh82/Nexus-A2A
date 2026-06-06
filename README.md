@@ -1,121 +1,77 @@
-# Argo — Cross-Venue Arbitrage Agent
+# Argo
 
-A single autonomous agent that maintains a live price graph across spot DEXs and CEXs across multiple chains, hunts for **negative cycles** (closed loops where capital comes back larger than it started), routes USDC through the optimal path via Circle Gateway + CCTP, and parks idle capital in USYC between opportunities.
+> Cross-venue arbitrage agent. One graph. Real USDC. Settled on Arc.
 
-One agent. One graph. Real USDC. Settled on Arc.
+Argo maintains a live price graph across spot DEXs, CEXs, and chains. It runs continuous **negative-cycle detection** to find closed loops where capital comes back larger than it started. When one clears 5 bps net of fees + slippage, Argo sizes it against per-edge liquidity, routes USDC through **Circle Gateway + CCTP**, and settles on **Arc**. Idle capital parks in **USYC** for yield between captured arbs.
 
----
+## Why it can only run here
 
-## The problem
-
-Price discrepancies across venues and chains exist constantly — but each one disappears in seconds. Capturing them requires four things at once:
-
-1. **Real-time price data** from every relevant venue
-2. **Graph reasoning** to spot multi-hop arbitrage that humans miss
-3. **Sub-second execution** before the spread vanishes
-4. **Cost-honest accounting** so you only execute when *net* of fees and slippage you actually win
-
-Most arb bots today do one or two of these. The ones that do all four are quiet because they make money quietly.
-
-## The solution
-
-Argo treats every venue as a node and every tradeable pair as a weighted edge in a directed graph. The agent runs continuous negative-cycle detection (Bellman-Ford / SPFA over log-prices) to find closed loops where:
-
-```
-∏ (1 + r_i) × (1 − fees_i − slippage_i) > 1
-```
-
-When a cycle exists with positive net edge after costs, Argo:
-
-1. **Sizes** the trade against per-edge liquidity (Kelly-bounded, capped by available USDC at the source venue)
-2. **Routes** capital via Circle Gateway (sub-500ms cross-chain unified balance) and CCTP where chain hops are required
-3. **Executes** the legs in deterministic order on Arc
-4. **Settles** profit back to the parent vault and parks idle capital in USYC
-
-When no profitable cycle exists, idle USDC sits in **USYC** earning yield. The treasury never sleeps.
-
-## Why Arc is load-bearing
-
-Argo cannot run profitably on any other settlement substrate:
-
-- **Sub-second deterministic finality** — without it, the cycle vanishes during settlement
-- **~$0.01 per-tx fees in USDC** — without it, per-route economics never close at retail size
-- **Deterministic ordering** — execution is sandwich-resistant by construction
-- **Native USDC** — settlement currency = the asset you're arbitraging, no conversion overhead
-
-## Circle stack — what's load-bearing
-
-| Product | Function |
+| | |
 |---|---|
-| **USDC** | Working capital and settlement leg of every route |
-| **EURC** | FX-aware nodes in the price graph (USDC↔EURC↔ETH triangles) |
-| **USYC** | Idle treasury parks here for yield between captured arbs |
-| **Wallets** | One Circle Wallet per venue, holding venue-specific working capital |
-| **Gateway** | Unified USDC balance + sub-500ms cross-chain — the speed mechanism the whole product depends on |
-| **CCTP** | Native USDC cross-chain settlement for routes that span chains |
-| **Paymaster** | All gas paid in USDC so per-route PnL accounting stays clean |
-| **Contracts** | RouteRegistry on Arc — every captured arb is an onchain receipt |
-| **App Kit** | Unified Balance dashboard component for treasury view |
+| **Sub-second finality** | Without it, the cycle vanishes during settlement and the leg is stranded mid-route. |
+| **~$0.01 per-tx in USDC** | Without it, per-route economics never close at retail size. |
+| **Deterministic ordering** | Sandwich-resistant by construction — cycle executes whole or not at all. |
+| **Native USDC settlement** | Currency = the asset, no conversion overhead. |
 
-## How the agent decides
+## How it works
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                       ARGO AGENT                        │
-│                                                          │
-│   tick (sub-second):                                    │
-│    1. ingest mid prices from every monitored venue      │
-│    2. update edge weights in the live price graph       │
-│    3. run negative-cycle search (Bellman-Ford / SPFA)   │
-│    4. for each candidate cycle:                         │
-│         - compute net-of-cost PnL with live fees + book │
-│         - rank by (expected PnL × probability of fill)  │
-│    5. if top cycle clears threshold:                    │
-│         - size against liquidity + bankroll             │
-│         - route via Gateway / CCTP                      │
-│         - execute legs in order                         │
-│         - record onchain receipt                        │
-│    6. if no cycle: park idle USDC in USYC               │
-└─────────────────────────────────────────────────────────┘
+ingest → reason → size → route → execute → park
+  ↑                                            │
+  └────────────────────────────────────────────┘
+                  every 500ms
 ```
 
-## Tech stack
+1. **Ingest** mids from Hyperliquid, Uniswap (Eth/Base/Arb), Curve, public CEX feeds
+2. **Reason** via Bellman-Ford / SPFA over `-log(rate × (1 − fees))`
+3. **Size** Kelly-bounded, capped at 10% of liquidity floor + hard cap
+4. **Route** Gateway moves USDC to source venue in <500ms; CCTP for chain hops
+5. **Execute** legs in deterministic order on Arc; record onchain receipt
+6. **Park** idle USDC sweeps into USYC for yield
 
-| Layer | Stack |
+## Circle stack — all eight load-bearing
+
+| Product | Role |
 |---|---|
-| Frontend | Next.js 16 (App Router) · TypeScript · Tailwind CSS · light SaaS app shell (sidebar + main) |
-| Brand color | `#01B73E` (Jawstarter / SpendOS family) |
-| Agent runtime | Node.js · TypeScript · Anthropic SDK (Claude Sonnet for cost/slippage reasoning) |
-| Graph engine | Bellman-Ford + SPFA over log-prices |
-| Onchain | Arc (Canteen testnet) · Circle Wallets · CCTP · Gateway · Paymaster |
-| Smart contracts | Solidity · Foundry — RouteRegistry on Arc |
-| Price oracles | Hyperliquid, Uniswap V3, Curve, public CEX websockets |
+| **Wallets** | One Circle Wallet per venue |
+| **USDC** | Working capital + settlement |
+| **EURC** | FX-aware graph nodes (only EURC arb actually viable) |
+| **USYC** | Idle treasury parks here for yield |
+| **Gateway** | Sub-500ms cross-chain — the speed mechanism |
+| **CCTP** | Native USDC bridges |
+| **Paymaster** | All gas in USDC — clean per-route PnL |
+| **Contracts** | RouteRegistry on Arc — every arb is an onchain receipt |
 
-## Repo layout (planned)
+## Tech
 
+Next.js 16 · TypeScript · Tailwind 4 · Anthropic SDK · viem · `@circle-fin/developer-controlled-wallets` · Foundry (contracts) · Hyperliquid + Uniswap V3 + Curve clients
+
+## Run locally
+
+```bash
+git clone https://github.com/ayushsingh82/Argo.git
+cd Argo
+npm install
+npm run dev
 ```
-argo/
-├─ src/
-│  ├─ app/                  # Next.js app shell (sidebar + dashboard)
-│  ├─ components/           # Sidebar, header, primitives
-│  ├─ graph/
-│  │  ├─ types.ts           # Node, Edge, Cycle
-│  │  ├─ build.ts           # construct graph from venue snapshots
-│  │  └─ search.ts          # Bellman-Ford / SPFA negative cycle
-│  ├─ venues/
-│  │  ├─ hyperliquid.ts
-│  │  ├─ uniswap.ts
-│  │  ├─ curve.ts
-│  │  └─ binance.ts         # public websocket only
-│  ├─ executor/
-│  │  ├─ size.ts            # Kelly-bounded sizing
-│  │  ├─ route.ts           # Gateway / CCTP routing
-│  │  └─ run.ts             # execute legs in order
-│  └─ circle/               # wallets / gateway / cctp / paymaster / usyc
-└─ contracts/
-   └─ RouteRegistry.sol
-```
+
+Open `http://localhost:3000` for the marketing landing, `/dashboard` for the live agent.
+
+## API surface
+
+| Endpoint | Returns |
+|---|---|
+| `GET /api/kpis` | swarm KPIs (opportunities scanned/captured, profit, latency, success rate) |
+| `GET /api/opportunities` | live cycle candidates above 5 bps |
+| `GET /api/executions` | recent onchain receipts |
+| `GET /api/treasury` | unified balance + per-venue working USDC + USYC |
+| `GET /api/venues` | nodes + edges in the live graph |
+| `POST /api/scan` | trigger one scan tick (jitter prices → search → maybe execute) |
 
 ## Status
 
-Day 1. See [pending.md](./pending.md).
+Phase 2 (backend) live. Next: Phase 3 venue clients (Hyperliquid public mids, Uniswap V3 QuoterV2, Curve), Phase 4 executor + reasoning, Phase 5 Circle wallets per venue. See [pending.md](./pending.md).
+
+## Hackathon
+
+Built for the [Agora Agents Hackathon](./hackathon.md) — Canteen × Circle × Arc, RFB 05 (Cross-Platform Arbitrage Agent).
