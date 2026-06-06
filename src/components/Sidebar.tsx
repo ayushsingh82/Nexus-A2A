@@ -17,7 +17,11 @@ export default function Sidebar() {
 
   return (
     <aside className="app-sidebar">
-      <div className="sidebar-logo">
+      <Link
+        href="/"
+        className="sidebar-logo"
+        style={{ textDecoration: "none", display: "block" }}
+      >
         <div className="flex items-center gap-3">
           <div
             style={{
@@ -58,7 +62,7 @@ export default function Sidebar() {
             </div>
           </div>
         </div>
-      </div>
+      </Link>
 
       <nav className="sidebar-nav">
         <div className="nav-section-label">Navigation</div>

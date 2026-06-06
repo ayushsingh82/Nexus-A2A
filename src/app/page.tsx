@@ -1,16 +1,22 @@
 import Link from "next/link";
+import HeroBackground from "@/components/HeroBackground";
 
 export default function Home() {
   return (
     <div>
       <Nav />
       <Hero />
-      <Capabilities />
+      <Ticker />
+      <AgentLoop />
+      <WhyArc />
+      <CircleStack />
+      <FinalCTA />
       <Footer />
     </div>
   );
 }
 
+/* ── Top nav ───────────────────────────────────────────── */
 function Nav() {
   return (
     <header
@@ -45,8 +51,11 @@ function Nav() {
           <a href="#how" style={navLinkStyle}>
             How it works
           </a>
+          <a href="#arc" style={navLinkStyle}>
+            Why Arc
+          </a>
           <a href="#stack" style={navLinkStyle}>
-            Circle stack
+            Stack
           </a>
           <Link href="/dashboard" className="btn-brand-outline">
             Open dashboard →
@@ -64,10 +73,12 @@ const navLinkStyle: React.CSSProperties = {
   fontWeight: 500,
 };
 
+/* ── Hero with PixelBlast ──────────────────────────────── */
 function Hero() {
   return (
-    <section className="hero">
-      <div className="hero__wrap">
+    <section className="hero" style={{ position: "relative", overflow: "hidden" }}>
+      <HeroBackground />
+      <div className="hero__wrap" style={{ position: "relative", zIndex: 1 }}>
         <div className="hero__eyebrow">
           <span className="hero__eyebrow-dot" />
           Live arbitrage agent · Arc · USDC
@@ -84,11 +95,15 @@ function Hero() {
           the spread vanishes.
         </p>
         <div className="hero__ctas">
-          <Link href="/dashboard" className="btn-primary" style={{ padding: "12px 22px", fontSize: 14 }}>
+          <Link
+            href="/dashboard"
+            className="btn-primary"
+            style={{ padding: "12px 22px", fontSize: 14 }}
+          >
             Open the live dashboard →
           </Link>
           <a href="#how" className="btn-neutral-outline">
-            How it works
+            See how it works
           </a>
         </div>
 
@@ -115,7 +130,57 @@ function Hero() {
   );
 }
 
-function Capabilities() {
+/* ── Live ticker (looks like real signal flowing) ──────── */
+function Ticker() {
+  const items = [
+    { tag: "TRADE", text: "USDC → ETH → USDC · uni-eth ▸ uni-base · +12.4 bps · $14.88", color: "green" },
+    { tag: "SCAN", text: "1,842 cycles evaluated in last 60s · 4 above threshold", color: "blue" },
+    { tag: "ROUTE", text: "8,400 USDC · Gateway · ARC → ETH · 412ms", color: "amber" },
+    { tag: "PARK", text: "1,240 USDC swept → USYC · idle yield", color: "green" },
+    { tag: "TRADE", text: "USDC → EURC → USDC · curve ▸ uni-arb · +7.1 bps · $5.32", color: "green" },
+    { tag: "TRADE", text: "USDC → BTC → USDC · binance ▸ hl · +9.8 bps · $19.60", color: "green" },
+  ];
+  return (
+    <section
+      style={{
+        background: "var(--bg-base)",
+        borderTop: "1px solid var(--border)",
+        borderBottom: "1px solid var(--border)",
+        padding: "16px 0",
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          gap: 32,
+          whiteSpace: "nowrap",
+          animation: "ticker 60s linear infinite",
+          width: "max-content",
+        }}
+      >
+        {[...items, ...items, ...items].map((it, i) => (
+          <div key={i} style={{ display: "inline-flex", alignItems: "center", gap: 10, fontSize: 12.5 }}>
+            <span className={`chip chip-${it.color}`}>{it.tag}</span>
+            <span style={{ color: "var(--text-secondary)" }} className="font-mono">
+              {it.text}
+            </span>
+            <span style={{ color: "var(--border-strong)", marginLeft: 12 }}>·</span>
+          </div>
+        ))}
+      </div>
+      <style>{`
+        @keyframes ticker {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-33.333%); }
+        }
+      `}</style>
+    </section>
+  );
+}
+
+/* ── Agent loop (replaces the flat capability grid) ───── */
+function AgentLoop() {
   const steps = [
     {
       n: "01",
@@ -152,121 +217,453 @@ function Capabilities() {
     <section
       id="how"
       style={{
-        background: "var(--bg-surface)",
-        borderTop: "1px solid var(--border)",
-        padding: "80px 28px",
+        background: "var(--bg-base)",
+        padding: "96px 28px",
       }}
     >
       <div style={{ maxWidth: 1080, margin: "0 auto" }}>
-        <div style={{ maxWidth: 700, marginBottom: 40 }}>
-          <div
-            style={{
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
-              color: "var(--teal-text)",
-              marginBottom: 12,
-            }}
-          >
-            How it works
-          </div>
-          <h2 style={{ fontSize: 36, lineHeight: 1.1, letterSpacing: "-0.02em" }}>
-            One agent. One graph. <br />
-            Six things, every 500ms.
-          </h2>
-        </div>
-        <div
+        <SectionEyebrow>How it works</SectionEyebrow>
+        <h2
           style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-            gap: 16,
+            fontSize: "clamp(32px, 4vw, 44px)",
+            lineHeight: 1.08,
+            letterSpacing: "-0.025em",
+            maxWidth: 720,
+            marginTop: 12,
           }}
         >
-          {steps.map((s) => (
-            <div key={s.n} className="card" style={{ background: "var(--bg-elevated)" }}>
+          One agent. One graph.{" "}
+          <span className="underline-curve">Six things, every 500ms.</span>
+        </h2>
+        <p
+          style={{
+            fontSize: 16,
+            color: "var(--text-secondary)",
+            marginTop: 16,
+            maxWidth: 620,
+            lineHeight: 1.55,
+          }}
+        >
+          The agent never stops. Every half-second it ingests, reasons, sizes,
+          routes, executes, and rebalances — then does it again.
+        </p>
+
+        <div
+          style={{
+            position: "relative",
+            marginTop: 56,
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 0,
+            border: "1px solid var(--border)",
+            borderRadius: 16,
+            overflow: "hidden",
+            background: "var(--bg-elevated)",
+          }}
+          className="agent-loop"
+        >
+          {steps.map((s, i) => (
+            <div
+              key={s.n}
+              style={{
+                position: "relative",
+                padding: "28px 26px",
+                borderRight: (i + 1) % 3 !== 0 ? "1px solid var(--border)" : "none",
+                borderBottom: i < 3 ? "1px solid var(--border)" : "none",
+                background: "var(--bg-elevated)",
+                transition: "background 0.2s",
+              }}
+            >
               <div
                 style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: 30,
+                  height: 30,
+                  borderRadius: 8,
+                  background: "rgba(1, 183, 62, 0.10)",
+                  color: "var(--teal-text)",
                   fontFamily: "var(--font-geist-mono)",
                   fontSize: 12,
-                  color: "var(--text-muted)",
-                  letterSpacing: "0.1em",
+                  fontWeight: 700,
+                  letterSpacing: "0.04em",
                 }}
               >
                 {s.n}
               </div>
-              <div style={{ fontSize: 18, fontWeight: 700, marginTop: 8 }}>
+              <div
+                style={{
+                  fontSize: 19,
+                  fontWeight: 700,
+                  marginTop: 14,
+                  letterSpacing: "-0.01em",
+                  color: "var(--text-primary)",
+                }}
+              >
                 {s.title}
               </div>
-              <div style={{ fontSize: 13.5, color: "var(--text-secondary)", marginTop: 8, lineHeight: 1.55 }}>
+              <div
+                style={{
+                  fontSize: 13.5,
+                  color: "var(--text-secondary)",
+                  marginTop: 8,
+                  lineHeight: 1.6,
+                }}
+              >
                 {s.body}
               </div>
             </div>
           ))}
         </div>
 
-        <div
-          id="stack"
+        <style>{`
+          @media (max-width: 900px) {
+            .agent-loop { grid-template-columns: repeat(2, 1fr) !important; }
+            .agent-loop > div { border-right: none !important; border-bottom: 1px solid var(--border) !important; }
+          }
+          @media (max-width: 600px) {
+            .agent-loop { grid-template-columns: 1fr !important; }
+            .agent-loop > div { border-right: none !important; }
+          }
+        `}</style>
+      </div>
+    </section>
+  );
+}
+
+/* ── Why Arc (the physics strip) ───────────────────────── */
+function WhyArc() {
+  const physics = [
+    {
+      stat: "sub-second",
+      label: "deterministic finality",
+      body: "Without it, the cycle vanishes during settlement and the leg is stranded mid-route.",
+    },
+    {
+      stat: "~$0.01",
+      label: "per-tx · paid in USDC",
+      body: "Without it, the math never closes at retail size. Per-route economics depend on it.",
+    },
+    {
+      stat: "deterministic",
+      label: "execution ordering",
+      body: "Sandwich-resistant by construction. The cycle either executes whole or not at all.",
+    },
+  ];
+  return (
+    <section
+      id="arc"
+      style={{
+        background: "var(--bg-surface)",
+        borderTop: "1px solid var(--border)",
+        borderBottom: "1px solid var(--border)",
+        padding: "96px 28px",
+      }}
+    >
+      <div style={{ maxWidth: 1080, margin: "0 auto" }}>
+        <SectionEyebrow>Why Arc is load-bearing</SectionEyebrow>
+        <h2
           style={{
-            marginTop: 64,
-            padding: "32px 28px",
-            border: "1px solid var(--border)",
-            borderRadius: 16,
-            background: "var(--bg-elevated)",
+            fontSize: "clamp(28px, 3.5vw, 40px)",
+            lineHeight: 1.1,
+            letterSpacing: "-0.02em",
+            maxWidth: 760,
+            marginTop: 12,
           }}
         >
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--teal-text)", marginBottom: 12 }}>
-            Circle stack
-          </div>
-          <h3 style={{ fontSize: 22, marginBottom: 18 }}>
-            Eight Circle products. Every one load-bearing.
-          </h3>
-          <div className="grid-cols-4">
-            {[
-              ["Wallets", "One wallet per venue"],
-              ["USDC", "Working capital + settlement"],
-              ["EURC", "FX-aware graph nodes"],
-              ["USYC", "Idle treasury parks here"],
-              ["Gateway", "Sub-500ms cross-chain"],
-              ["CCTP", "Native USDC cross-chain"],
-              ["Paymaster", "Gas in USDC"],
-              ["Contracts", "RouteRegistry on Arc"],
-            ].map(([name, desc]) => (
+          Argo cannot run profitably on any other settlement substrate.
+        </h2>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gap: 14,
+            marginTop: 40,
+          }}
+        >
+          {physics.map((p) => (
+            <div
+              key={p.label}
+              style={{
+                background: "var(--bg-elevated)",
+                border: "1px solid var(--border)",
+                borderRadius: 14,
+                padding: "26px 24px",
+              }}
+            >
               <div
-                key={name}
                 style={{
-                  padding: 14,
-                  border: "1px solid var(--border)",
-                  borderRadius: 10,
-                  background: "var(--bg-surface)",
+                  fontFamily: "var(--font-geist-mono)",
+                  fontSize: 32,
+                  fontWeight: 700,
+                  color: "var(--teal-text)",
+                  letterSpacing: "-0.02em",
                 }}
               >
-                <div style={{ fontWeight: 700, fontSize: 14, color: "var(--text-primary)" }}>
-                  {name}
-                </div>
-                <div style={{ fontSize: 12.5, color: "var(--text-secondary)", marginTop: 4 }}>
-                  {desc}
-                </div>
+                {p.stat}
               </div>
-            ))}
-          </div>
-          <div style={{ marginTop: 24 }}>
-            <Link href="/dashboard" className="btn-primary" style={{ padding: "10px 18px" }}>
-              See the live numbers →
-            </Link>
-          </div>
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: "var(--text-muted)",
+                  marginTop: 6,
+                }}
+              >
+                {p.label}
+              </div>
+              <div
+                style={{
+                  fontSize: 13.5,
+                  color: "var(--text-secondary)",
+                  marginTop: 14,
+                  lineHeight: 1.55,
+                }}
+              >
+                {p.body}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
   );
 }
 
+/* ── Circle stack (badge grid) ─────────────────────────── */
+function CircleStack() {
+  const products = [
+    { name: "Wallets",   role: "One Circle Wallet per venue, holding venue-specific working USDC.", load: "core" },
+    { name: "USDC",      role: "Native settlement currency and working capital across every leg.", load: "core" },
+    { name: "EURC",      role: "FX-aware nodes in the graph — the only EURC arb actually viable.", load: "unique" },
+    { name: "USYC",      role: "Idle treasury sweeps here for yield between captured arbs.", load: "unique" },
+    { name: "Gateway",   role: "Unified balance + sub-500ms cross-chain. The speed mechanism.", load: "critical" },
+    { name: "CCTP",      role: "Native USDC bridges for routes that span chains.", load: "critical" },
+    { name: "Paymaster", role: "All gas paid in USDC — clean per-route PnL accounting.", load: "core" },
+    { name: "Contracts", role: "RouteRegistry on Arc — every captured arb is an onchain receipt.", load: "core" },
+  ];
+  const loadStyle: Record<string, React.CSSProperties> = {
+    critical: { background: "rgba(1, 183, 62, 0.12)", color: "var(--teal-text)", borderColor: "rgba(1, 183, 62, 0.32)" },
+    unique:   { background: "rgba(37, 99, 235, 0.10)", color: "#1d4ed8", borderColor: "rgba(37, 99, 235, 0.25)" },
+    core:     { background: "rgba(0, 0, 0, 0.04)",     color: "var(--text-secondary)", borderColor: "var(--border-strong)" },
+  };
+  const loadLabel: Record<string, string> = {
+    critical: "critical",
+    unique: "unique-to-circle",
+    core: "core",
+  };
+  return (
+    <section
+      id="stack"
+      style={{
+        background: "var(--bg-base)",
+        padding: "96px 28px",
+      }}
+    >
+      <div style={{ maxWidth: 1080, margin: "0 auto" }}>
+        <SectionEyebrow>Circle stack</SectionEyebrow>
+        <h2
+          style={{
+            fontSize: "clamp(32px, 4vw, 44px)",
+            lineHeight: 1.08,
+            letterSpacing: "-0.025em",
+            maxWidth: 760,
+            marginTop: 12,
+          }}
+        >
+          Eight Circle products.{" "}
+          <span className="underline-curve">Every one load-bearing.</span>
+        </h2>
+        <p
+          style={{
+            fontSize: 16,
+            color: "var(--text-secondary)",
+            marginTop: 16,
+            maxWidth: 620,
+            lineHeight: 1.55,
+          }}
+        >
+          Not bolted-on. If you removed any of these, the agent stops working.
+        </p>
+
+        <div
+          style={{
+            marginTop: 44,
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+            gap: 14,
+          }}
+        >
+          {products.map((p) => (
+            <div
+              key={p.name}
+              style={{
+                background: "var(--bg-elevated)",
+                border: "1px solid var(--border)",
+                borderRadius: 12,
+                padding: "20px 20px 22px",
+                position: "relative",
+                transition: "border-color 0.15s, transform 0.15s",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div
+                  style={{
+                    fontFamily: "var(--font-geist-mono)",
+                    fontSize: 16,
+                    fontWeight: 700,
+                    letterSpacing: "-0.01em",
+                    color: "var(--text-primary)",
+                  }}
+                >
+                  {p.name}
+                </div>
+                <span
+                  style={{
+                    fontSize: 9.5,
+                    fontWeight: 700,
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                    padding: "3px 8px",
+                    borderRadius: 999,
+                    border: "1px solid",
+                    ...loadStyle[p.load],
+                  }}
+                >
+                  {loadLabel[p.load]}
+                </span>
+              </div>
+              <div
+                style={{
+                  fontSize: 13,
+                  color: "var(--text-secondary)",
+                  marginTop: 12,
+                  lineHeight: 1.55,
+                }}
+              >
+                {p.role}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── Final CTA ─────────────────────────────────────────── */
+function FinalCTA() {
+  return (
+    <section
+      style={{
+        background: "linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-base) 100%)",
+        borderTop: "1px solid var(--border)",
+        padding: "96px 28px",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 720,
+          margin: "0 auto",
+          textAlign: "center",
+        }}
+      >
+        <SectionEyebrow centered>See the live numbers</SectionEyebrow>
+        <h2
+          style={{
+            fontSize: "clamp(32px, 4vw, 44px)",
+            lineHeight: 1.1,
+            letterSpacing: "-0.025em",
+            marginTop: 14,
+          }}
+        >
+          The agent is running.
+        </h2>
+        <p
+          style={{
+            fontSize: 16,
+            color: "var(--text-secondary)",
+            marginTop: 16,
+            lineHeight: 1.55,
+          }}
+        >
+          Open the dashboard to watch opportunities flow through the graph,
+          executions land on Arc, and idle capital park in USYC.
+        </p>
+        <div
+          style={{
+            marginTop: 30,
+            display: "flex",
+            gap: 12,
+            justifyContent: "center",
+            flexWrap: "wrap",
+          }}
+        >
+          <Link
+            href="/dashboard"
+            className="btn-primary"
+            style={{ padding: "14px 26px", fontSize: 14 }}
+          >
+            Open dashboard →
+          </Link>
+          <a href="#how" className="btn-neutral-outline">
+            Back to how it works
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── Section eyebrow ───────────────────────────────────── */
+function SectionEyebrow({
+  children,
+  centered = false,
+}: {
+  children: React.ReactNode;
+  centered?: boolean;
+}) {
+  return (
+    <div
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 8,
+        fontSize: 11,
+        fontWeight: 700,
+        letterSpacing: "0.14em",
+        textTransform: "uppercase",
+        color: "var(--teal-text)",
+        padding: "5px 12px",
+        borderRadius: 999,
+        background: "rgba(1, 183, 62, 0.10)",
+        border: "1px solid rgba(1, 183, 62, 0.22)",
+        margin: centered ? "0 auto" : undefined,
+      }}
+    >
+      <span
+        style={{
+          width: 5,
+          height: 5,
+          borderRadius: "50%",
+          background: "var(--brand-green)",
+        }}
+      />
+      {children}
+    </div>
+  );
+}
+
+/* ── Footer ────────────────────────────────────────────── */
 function Footer() {
   return (
     <footer
       style={{
         borderTop: "1px solid var(--border)",
-        padding: "24px 28px",
+        padding: "32px 28px",
         background: "var(--bg-base)",
       }}
     >
@@ -278,12 +675,30 @@ function Footer() {
           justifyContent: "space-between",
           gap: 12,
           flexWrap: "wrap",
-          fontSize: 12,
-          color: "var(--text-muted)",
+          alignItems: "center",
         }}
       >
-        <span>Argo · 2026 · settled on Arc</span>
-        <span>USDC · EURC · USYC</span>
+        <div className="flex items-center gap-3">
+          <span
+            className="font-brand"
+            style={{ fontSize: 22, color: "var(--text-primary)", lineHeight: 1 }}
+          >
+            Argo
+          </span>
+          <span
+            style={{
+              fontSize: 11,
+              color: "var(--text-muted)",
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
+            }}
+          >
+            arb agent · arc
+          </span>
+        </div>
+        <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+          settled on Arc · USDC · EURC · USYC
+        </div>
       </div>
     </footer>
   );
