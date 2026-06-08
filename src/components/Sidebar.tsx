@@ -5,11 +5,12 @@ import ArgoLogo from "./ArgoLogo";
 
 const NAV = [
   { href: "/dashboard", icon: "▦", label: "Dashboard" },
-  { href: "/dashboard/markets", icon: "≋", label: "Markets" },
-  { href: "/dashboard/routes", icon: "⟲", label: "Route Graph" },
+  { href: "/dashboard/venues", icon: "≋", label: "Venues" },
+  { href: "/dashboard/graph", icon: "⟲", label: "Route Graph" },
   { href: "/dashboard/executions", icon: "▶", label: "Executions" },
   { href: "/dashboard/treasury", icon: "◈", label: "Treasury" },
-  { href: "/dashboard/settings", icon: "⚙", label: "Settings" },
+  { href: "/dashboard/wallets", icon: "⌬", label: "Wallets" },
+  { href: "/dashboard/network", icon: "◉", label: "Arc Network" },
 ];
 
 export default function Sidebar() {

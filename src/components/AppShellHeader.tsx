@@ -6,11 +6,11 @@ const TITLES: Record<string, { title: string; subtitle?: string }> = {
     title: "Dashboard",
     subtitle: "Live arbitrage signal across spot venues on Arc.",
   },
-  "/dashboard/markets": {
-    title: "Markets",
-    subtitle: "Real-time mid prices across every monitored venue.",
+  "/dashboard/venues": {
+    title: "Venues",
+    subtitle: "Real-time mids from every monitored venue + their edges.",
   },
-  "/dashboard/routes": {
+  "/dashboard/graph": {
     title: "Route Graph",
     subtitle: "Live directed graph of tradable edges and negative cycles.",
   },
@@ -22,9 +22,13 @@ const TITLES: Record<string, { title: string; subtitle?: string }> = {
     title: "Treasury",
     subtitle: "Per-venue Circle Wallets, unified balance, USYC parking.",
   },
-  "/dashboard/settings": {
-    title: "Settings",
-    subtitle: "Scan interval, profit threshold, venue selection.",
+  "/dashboard/wallets": {
+    title: "Circle Wallets",
+    subtitle: "Provisioned wallets on Arc Testnet, fund via faucet.circle.com.",
+  },
+  "/dashboard/network": {
+    title: "Arc Network",
+    subtitle: "Arc Testnet — chain ID, RPCs, contract addresses, faucet.",
   },
 };
 
