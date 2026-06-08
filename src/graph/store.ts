@@ -84,7 +84,7 @@ export async function runScan(): Promise<{
   scanned: number;
   cyclesAboveThreshold: number;
   executed?: Execution;
-  venuesOk: { hyperliquid: boolean; binance: boolean };
+  venuesOk: { hyperliquid: boolean; binance: boolean; chainlink: boolean };
   edgeCount: number;
 }> {
   const store = getStore();
@@ -210,17 +210,19 @@ function round(n: number, dp = 2): number {
  */
 function createSeed(): Store {
   const venues: Venue[] = [
-    { id: "hl",      name: "Hyperliquid", chain: "HL",  kind: "PERP" },
-    { id: "binance", name: "Binance",     chain: "CEX", kind: "CEX"  },
+    { id: "hl",        name: "Hyperliquid", chain: "HL",  kind: "PERP" },
+    { id: "binance",   name: "Binance",     chain: "CEX", kind: "CEX"  },
+    { id: "chainlink", name: "Chainlink",   chain: "ETH", kind: "DEX"  },
   ];
 
   const treasury: Treasury = {
-    usdcWorking: 25_000,
+    usdcWorking: 30_000,
     usycParked: 0,
     eurcWorking: 0,
     usdcByVenue: {
-      hl: 12_500,
-      binance: 12_500,
+      hl: 12_000,
+      binance: 12_000,
+      chainlink: 6_000,
     },
   };
 
