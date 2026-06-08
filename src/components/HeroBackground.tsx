@@ -17,16 +17,17 @@ export default function HeroBackground() {
     >
       <PixelBlast
         variant="square"
-        pixelSize={4}
+        pixelSize={6}
         color="#01B73E"
-        patternScale={2}
-        patternDensity={1.08}
+        patternScale={3.2}
+        patternDensity={0.52}
         enableRipples
-        rippleSpeed={0.4}
-        rippleThickness={0.12}
-        rippleIntensityScale={1.5}
-        speed={0.5}
-        edgeFade={0.22}
+        rippleSpeed={0.28}
+        rippleThickness={0.08}
+        rippleIntensityScale={0.85}
+        speed={0.32}
+        edgeFade={0.48}
+        noiseAmount={0.04}
         transparent
       />
     </div>

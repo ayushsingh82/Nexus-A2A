@@ -424,6 +424,34 @@ h1,h2,h3,h4,h5 {
 .hero__stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 56px; }
 @media (max-width: 800px) { .hero__stats { grid-template-columns: repeat(2, 1fr); } }
 
+/* ── Landing-page mobile breakpoints ───────────────────────── */
+.landing-nav { padding: 14px 28px; }
+.landing-nav__links { display: flex; gap: 22px; align-items: center; }
+.landing-nav__links a.btn-brand-outline { padding: 8px 14px; }
+
+@media (max-width: 720px) {
+  .hero { padding: 48px 18px 64px; min-height: 80dvh; }
+  .hero__stats { margin-top: 36px; }
+  .hero__ctas .btn-primary,
+  .hero__ctas .btn-neutral-outline { flex: 1 1 auto; text-align: center; }
+
+  .landing-nav { padding: 12px 16px; }
+  .landing-nav__links { gap: 12px; }
+  .landing-nav__links .landing-nav__hide-sm { display: none; }
+  .landing-nav__links a.btn-brand-outline { padding: 7px 12px; font-size: 12px; }
+
+  .landing-section { padding: 64px 18px !important; }
+
+  /* agent-loop already responsive in page.tsx; ticker stays as-is (overflow-x marquee) */
+}
+
+@media (max-width: 480px) {
+  .hero__title { font-size: 36px !important; line-height: 1.05; }
+  .hero__subtitle { font-size: 15px !important; }
+  .hero__stat { padding: 14px; }
+  .hero__stat-value { font-size: 17px; }
+}
+
 .hero__stat {
   background: var(--bg-elevated);
   border: 1px solid var(--border);

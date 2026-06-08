@@ -1,5 +1,6 @@
 import Link from "next/link";
 import HeroBackground from "@/components/HeroBackground";
+import HeaderBackground from "@/components/HeaderBackground";
 
 export default function Home() {
   return (
@@ -24,16 +25,22 @@ function Nav() {
         position: "sticky",
         top: 0,
         zIndex: 30,
-        background: "rgba(255,255,255,0.85)",
+        background: "rgba(255,255,255,0.78)",
         backdropFilter: "blur(8px)",
         borderBottom: "1px solid var(--border)",
+        overflow: "hidden",
       }}
     >
+      <div style={{ position: "absolute", inset: 0, opacity: 0.55, pointerEvents: "none" }}>
+        <HeaderBackground />
+      </div>
       <div
+        className="landing-nav"
         style={{
+          position: "relative",
+          zIndex: 1,
           maxWidth: 1180,
           margin: "0 auto",
-          padding: "14px 28px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -47,14 +54,14 @@ function Nav() {
             Argo
           </span>
         </Link>
-        <nav style={{ display: "flex", gap: 22, alignItems: "center" }}>
-          <a href="#how" style={navLinkStyle}>
+        <nav className="landing-nav__links">
+          <a href="#how" style={navLinkStyle} className="landing-nav__hide-sm">
             How it works
           </a>
-          <a href="#arc" style={navLinkStyle}>
+          <a href="#arc" style={navLinkStyle} className="landing-nav__hide-sm">
             Why Arc
           </a>
-          <a href="#stack" style={navLinkStyle}>
+          <a href="#stack" style={navLinkStyle} className="landing-nav__hide-sm">
             Stack
           </a>
           <Link href="/dashboard" className="btn-brand-outline">
@@ -216,6 +223,7 @@ function AgentLoop() {
   return (
     <section
       id="how"
+      className="landing-section"
       style={{
         background: "var(--bg-base)",
         padding: "96px 28px",
@@ -354,6 +362,7 @@ function WhyArc() {
   return (
     <section
       id="arc"
+      className="landing-section"
       style={{
         background: "var(--bg-surface)",
         borderTop: "1px solid var(--border)",
@@ -458,6 +467,7 @@ function CircleStack() {
   return (
     <section
       id="stack"
+      className="landing-section"
       style={{
         background: "var(--bg-base)",
         padding: "96px 28px",
@@ -558,6 +568,7 @@ function CircleStack() {
 function FinalCTA() {
   return (
     <section
+      className="landing-section"
       style={{
         background: "linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-base) 100%)",
         borderTop: "1px solid var(--border)",
