@@ -1,3 +1,4 @@
+import RouteGraphCanvas from "@/components/RouteGraphCanvas";
 import ScanButton from "@/components/ScanButton";
 import { listEdges, listOpportunities, listVenues } from "@/graph/store";
 import type { PriceEdge } from "@/graph/types";
@@ -29,6 +30,19 @@ export default function GraphPage() {
           </div>
         </div>
         <ScanButton />
+      </section>
+
+      <section className="card" style={{ padding: 0, marginTop: 16, overflow: "hidden" }}>
+        <header style={{ padding: "14px 20px", borderBottom: "1px solid var(--border)" }}>
+          <div className="section-title">Live graph view</div>
+          <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>
+            Token ring with every tradable edge. The best negative cycle is drawn
+            in green with USDC flowing the loop.
+          </div>
+        </header>
+        <div style={{ padding: "10px 14px 16px" }}>
+          <RouteGraphCanvas edges={edges} cycle={opps[0]?.cycle} />
+        </div>
       </section>
 
       <section className="card" style={{ padding: 0, marginTop: 16, overflow: "hidden" }}>
