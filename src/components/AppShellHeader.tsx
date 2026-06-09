@@ -6,6 +6,10 @@ const TITLES: Record<string, { title: string; subtitle?: string }> = {
     title: "Dashboard",
     subtitle: "Live arbitrage signal across spot venues on Arc.",
   },
+  "/dashboard/ask": {
+    title: "Ask the swarm",
+    subtitle: "Open-ended Q&A — answered live from the swarm's real state.",
+  },
   "/dashboard/venues": {
     title: "Venues",
     subtitle: "Real-time mids from every monitored venue + their edges.",

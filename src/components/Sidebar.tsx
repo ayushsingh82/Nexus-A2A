@@ -5,6 +5,7 @@ import ArgoLogo from "./ArgoLogo";
 
 const NAV = [
   { href: "/dashboard", icon: "▦", label: "Dashboard" },
+  { href: "/dashboard/ask", icon: "✦", label: "Ask the swarm" },
   { href: "/dashboard/venues", icon: "≋", label: "Venues" },
   { href: "/dashboard/graph", icon: "⟲", label: "Route Graph" },
   { href: "/dashboard/executions", icon: "▶", label: "Executions" },
