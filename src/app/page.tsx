@@ -65,9 +65,10 @@ function Nav() {
           <a href="#stack" style={navLinkStyle} className="landing-nav__hide-sm">
             Stack
           </a>
-          <a href="#dashboard" style={navLinkStyle} className="landing-nav__hide-sm">
-            Dashboard
-          </a>
+          <Link href="/pitch" style={navLinkStyle} className="landing-nav__hide-sm">
+            Pitch
+          </Link>
+          {/* Single dashboard entry — the CTA below. No duplicate "Dashboard" link. */}
           <Link href="/dashboard" className="btn-brand-outline">
             Open dashboard →
           </Link>
