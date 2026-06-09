@@ -29,6 +29,18 @@ ingest → reason → size → route → execute → park
 5. **Execute** legs in deterministic order on Arc; record onchain receipt
 6. **Park** idle USDC sweeps into USYC for yield
 
+## Live dashboard
+
+The dashboard isn't a static report — it's the agent running in front of you, on **real venue prices**.
+
+- **Autopilot** — toggle continuous scanning. Every ~9s Argo re-polls Hyperliquid, Binance, and Chainlink, rebuilds the graph, and pulls fresh state. Per-panel **status dots** show live/stale + "updated Ns ago" so you always know the data is real.
+- **Run capture cycle** — a one-click animated walkthrough of the full pipeline (scan → graph → detect cycle → Kelly-size → Gateway → CCTP → execute → settle on Arc → park in USYC) that fires an actual scan and reports what it captured.
+- **Live route graph** — tokens on a ring, every tradable edge as a chord, and the best negative cycle drawn in brand green with a USDC packet flowing the loop. Shown on the dashboard and the dedicated Route Graph page.
+- **Realized-PnL curve** — cumulative USDC captured across all settled cycles, drawn from real execution receipts.
+- **Live panels** — opportunities, treasury (Gateway-unified balance + USYC + EURC), monitored venues, and Arc receipts, all auto-refreshing.
+
+All client-side interactivity is dependency-free (bespoke SVG + CSS), seeded from a server-rendered first paint and kept live by a small `useLiveData` polling hook.
+
 ## Circle stack — all eight load-bearing
 
 | Product | Role |
