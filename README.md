@@ -41,6 +41,11 @@ The dashboard isn't a static report — it's the agent running in front of you, 
 
 All client-side interactivity is dependency-free (bespoke SVG + CSS), seeded from a server-rendered first paint and kept live by a small `useLiveData` polling hook.
 
+## Brand & pitch
+
+- **`/pitch`** — an 8-slide deck (problem → solution → how it works → why Arc → audience & market → business model → ask), navigable by arrow keys, dots, or buttons.
+- **`/logo`** — the brand page: the Argo mark (a closed arbitrage cycle — three nodes, three edges), lockup, on-brand/ink/paper variants, palette, and downloadable SVGs.
+
 ## Circle stack — all eight load-bearing
 
 | Product | Role |
@@ -67,7 +72,7 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000` for the marketing landing, `/dashboard` for the live agent.
+Open `http://localhost:3000` for the marketing landing, `/dashboard` for the live agent, `/pitch` for the deck, and `/logo` for brand assets.
 
 ## API surface
 
