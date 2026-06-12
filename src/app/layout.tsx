@@ -1,27 +1,32 @@
 import type { Metadata } from "next";
-import { Allura, Geist, Geist_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space",
   subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  display: "swap",
 });
 
-const allura = Allura({
-  variable: "--font-allura",
-  weight: "400",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-mono",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Argo — Cross-Venue Arbitrage Agent",
+  title: "Nexus — DeFi Yield Swarm",
   description:
-    "A single autonomous agent that hunts negative-cycle arbitrage across spot venues and chains, routed via Circle Gateway + CCTP, settled on Arc.",
+    "Four agents. One delegation. Maximum yield. Master orchestrator redelegates via ERC-7710 to Aave, Uniswap, and Hyperliquid sub-agents — autonomously maximising your USDC yield.",
 };
 
 export default function RootLayout({
@@ -30,10 +35,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${allura.variable} antialiased`}
-    >
+    <html lang="en" className={`${jakarta.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
       <body>{children}</body>
     </html>
   );

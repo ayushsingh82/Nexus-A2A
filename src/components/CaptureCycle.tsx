@@ -2,34 +2,32 @@
 
 import { useEffect, useRef, useState } from "react";
 
-type ScanResult = {
+type SwarmResult = {
   ok: boolean;
-  cyclesAboveThreshold: number;
-  edgeCount: number;
-  executed?: { realizedUsdc: number; netBps: number };
-  venuesOk?: { hyperliquid: boolean; binance: boolean; chainlink: boolean };
+  yieldCollectedUsdc: number;
+  rebalanced: boolean;
+  rebalanceDetails?: string;
 };
 
-/** The full Argo pipeline, step by step — the loop the agent runs every tick. */
 const STEPS = [
-  { title: "Scan venues", detail: "Polling Hyperliquid · Binance · Chainlink mids" },
-  { title: "Build price graph", detail: "Directed edges weighted by −log(rate · (1 − fee))" },
-  { title: "Detect negative cycle", detail: "Bellman-Ford finds profitable closed loops" },
-  { title: "Size with Kelly", detail: "Capped by the per-edge liquidity floor" },
-  { title: "Route via Circle Gateway", detail: "Unified USDC — no pre-funding each venue" },
-  { title: "Bridge with CCTP", detail: "Burn-and-mint USDC across chains" },
-  { title: "Execute legs", detail: "Fill each hop across the venues in the loop" },
-  { title: "Settle on Arc", detail: "Receipt onchain · ~$0.01 fee · sub-second finality" },
-  { title: "Park idle in USYC", detail: "Idle capital earns yield between captures" },
+  { title: "Check Smart Account",   detail: "Verify ERC-7715 permission from MetaMask Flask wallet" },
+  { title: "Fetch live APY rates",  detail: "DeFiLlama · Aave v3 · Uniswap V3 · Hyperliquid funding" },
+  { title: "Master agent decides",  detail: "Compare APYs — pick rebalance target if spread > 100 bps" },
+  { title: "Redelegate via ERC-7710", detail: "Master issues subdelegations to sub-agents with new caps" },
+  { title: "Aave Agent deploys",    detail: "Deposit USDC on Aave v3 within delegated cap" },
+  { title: "Uniswap LP deploys",    detail: "Provide USDC/ETH liquidity within delegated cap" },
+  { title: "Perp Agent deploys",    detail: "Capture BTC funding rate within delegated cap" },
+  { title: "Collect yield",         detail: "Agents pull earned interest + LP fees + funding" },
+  { title: "1Shot relays gas",      detail: "All transactions settled — gas paid in USDC, no ETH needed" },
 ];
 
-const STEP_MS = 620;
+const STEP_MS = 580;
 
 export default function CaptureCycle({ onScanned }: { onScanned: () => void }) {
   const [open, setOpen] = useState(false);
   const [running, setRunning] = useState(false);
   const [step, setStep] = useState(-1);
-  const [result, setResult] = useState<ScanResult | null>(null);
+  const [result, setResult] = useState<SwarmResult | null>(null);
   const scanDone = useRef(false);
 
   function start() {
@@ -39,20 +37,16 @@ export default function CaptureCycle({ onScanned }: { onScanned: () => void }) {
     setResult(null);
     scanDone.current = false;
 
-    // fire the real scan in parallel with the animation
     fetch("/api/scan", { method: "POST" })
       .then((r) => r.json())
-      .then((data: ScanResult) => {
+      .then((data: SwarmResult) => {
         setResult(data);
         scanDone.current = true;
         onScanned();
       })
-      .catch(() => {
-        scanDone.current = true;
-      });
+      .catch(() => { scanDone.current = true; });
   }
 
-  // advance the stepper
   useEffect(() => {
     if (!running) return;
     if (step >= STEPS.length - 1) {
@@ -68,44 +62,25 @@ export default function CaptureCycle({ onScanned }: { onScanned: () => void }) {
   return (
     <>
       <button onClick={start} className="btn-primary" style={{ padding: "9px 16px", fontSize: 13 }}>
-        ▶ Run capture cycle
+        ▶ Run swarm cycle
       </button>
 
       {open && (
-        <div
-          className="argo-overlay"
-          onClick={() => {
-            if (!running) setOpen(false);
-          }}
-        >
+        <div className="argo-overlay" onClick={() => { if (!running) setOpen(false); }}>
           <div className="argo-modal" onClick={(e) => e.stopPropagation()}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 4,
-              }}
-            >
-              <div className="section-title">Capture cycle</div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+              <div className="section-title">Swarm cycle</div>
               <button
                 onClick={() => !running && setOpen(false)}
                 disabled={running}
                 aria-label="close"
-                style={{
-                  border: "none",
-                  background: "transparent",
-                  fontSize: 18,
-                  cursor: running ? "not-allowed" : "pointer",
-                  color: "var(--text-muted)",
-                  opacity: running ? 0.4 : 1,
-                }}
+                style={{ border: "none", background: "transparent", fontSize: 18, cursor: running ? "not-allowed" : "pointer", color: "var(--text-muted)", opacity: running ? 0.4 : 1 }}
               >
                 ✕
               </button>
             </div>
             <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 16 }}>
-              Live scan on real venue prices, end to end.
+              Live delegation cycle — real APY data, real agent decisions.
             </div>
 
             <ol style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 8 }}>
@@ -127,31 +102,26 @@ export default function CaptureCycle({ onScanned }: { onScanned: () => void }) {
 
             {done && (
               <div className="argo-result">
-                {result?.executed ? (
+                {result?.yieldCollectedUsdc ? (
                   <>
                     <span className="dot dot-green" />
-                    Captured{" "}
+                    Yield collected:{" "}
                     <strong style={{ color: "var(--teal-text)" }}>
-                      {result.executed.netBps > 0 ? "+" : ""}
-                      {result.executed.netBps.toFixed(1)} bps
-                    </strong>{" "}
-                    ·{" "}
-                    <strong style={{ color: "var(--green)" }}>
-                      {result.executed.realizedUsdc >= 0 ? "+" : ""}$
-                      {result.executed.realizedUsdc.toFixed(2)}
-                    </strong>{" "}
-                    settled on Arc.
+                      +${result.yieldCollectedUsdc.toFixed(2)} USDC
+                    </strong>
+                    {result.rebalanced && result.rebalanceDetails && (
+                      <> · rebalanced <strong>{result.rebalanceDetails}</strong></>
+                    )}
                   </>
                 ) : result ? (
                   <>
                     <span className="dot dot-amber" />
-                    No cycle above the 5 bps threshold this tick — graph rebuilt from{" "}
-                    {result.edgeCount} live edges.
+                    Swarm ran — yield rates updated. No rebalance this tick.
                   </>
                 ) : (
                   <>
                     <span className="dot dot-red" />
-                    Scan failed — kept last-known edges.
+                    Scan failed — kept last-known agent state.
                   </>
                 )}
               </div>
@@ -160,12 +130,8 @@ export default function CaptureCycle({ onScanned }: { onScanned: () => void }) {
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 16 }}>
               {done && (
                 <>
-                  <button className="btn-neutral-outline" onClick={() => setOpen(false)}>
-                    Close
-                  </button>
-                  <button className="btn-primary" onClick={start} style={{ padding: "8px 16px" }}>
-                    Run again
-                  </button>
+                  <button className="btn-neutral-outline" onClick={() => setOpen(false)}>Close</button>
+                  <button className="btn-primary" onClick={start} style={{ padding: "8px 16px" }}>Run again</button>
                 </>
               )}
             </div>

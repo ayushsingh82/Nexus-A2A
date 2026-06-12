@@ -1,17 +1,14 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import ArgoLogo from "./ArgoLogo";
 
 const NAV = [
-  { href: "/dashboard", icon: "▦", label: "Dashboard" },
-  { href: "/dashboard/ask", icon: "✦", label: "Ask the swarm" },
-  { href: "/dashboard/venues", icon: "≋", label: "Venues" },
-  { href: "/dashboard/graph", icon: "⟲", label: "Route Graph" },
-  { href: "/dashboard/executions", icon: "▶", label: "Executions" },
-  { href: "/dashboard/treasury", icon: "◈", label: "Treasury" },
-  { href: "/dashboard/wallets", icon: "⌬", label: "Wallets" },
-  { href: "/dashboard/network", icon: "◉", label: "Arc Network" },
+  { href: "/dashboard",              icon: "▦", label: "Dashboard" },
+  { href: "/dashboard/agents",       icon: "◈", label: "Agent Registry" },
+  { href: "/dashboard/delegations",  icon: "⟲", label: "Delegation Tree" },
+  { href: "/dashboard/executions",   icon: "▶", label: "Executions" },
+  { href: "/dashboard/portfolio",    icon: "≋", label: "Portfolio" },
+  { href: "/dashboard/ask",          icon: "✦", label: "Ask the swarm" },
 ];
 
 export default function Sidebar() {
@@ -19,11 +16,7 @@ export default function Sidebar() {
 
   return (
     <aside className="app-sidebar">
-      <Link
-        href="/"
-        className="sidebar-logo"
-        style={{ textDecoration: "none", display: "block" }}
-      >
+      <Link href="/" className="sidebar-logo" style={{ textDecoration: "none", display: "block" }}>
         <div className="flex items-center gap-3">
           <div
             style={{
@@ -36,31 +29,17 @@ export default function Sidebar() {
               justifyContent: "center",
               flexShrink: 0,
               boxShadow: "0 2px 6px rgba(1, 183, 62, 0.22)",
+              fontSize: 18,
             }}
           >
-            <ArgoLogo size={20} variant="on-brand" />
+            ⬡
           </div>
           <div>
-            <div
-              className="font-brand"
-              style={{
-                fontSize: 24,
-                color: "var(--text-primary)",
-                lineHeight: 1,
-              }}
-            >
-              Argo
+            <div className="font-brand" style={{ fontSize: 22, color: "var(--text-primary)", lineHeight: 1, letterSpacing: "-0.03em" }}>
+              Nexus
             </div>
-            <div
-              style={{
-                fontSize: 10,
-                color: "var(--text-muted)",
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-                marginTop: 2,
-              }}
-            >
-              arb agent · arc
+            <div style={{ fontSize: 10, color: "var(--text-muted)", letterSpacing: "0.08em", textTransform: "uppercase", marginTop: 4, fontWeight: 600 }}>
+              yield swarm
             </div>
           </div>
         </div>
@@ -74,11 +53,7 @@ export default function Sidebar() {
             (item.href !== "/dashboard" && pathname.startsWith(item.href)) ||
             (item.href === "/dashboard" && pathname === "/dashboard");
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`nav-item${active ? " active" : ""}`}
-            >
+            <Link key={item.href} href={item.href} className={`nav-item${active ? " active" : ""}`}>
               <span className="nav-icon">{item.icon}</span>
               <span>{item.label}</span>
             </Link>
@@ -86,16 +61,8 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div
-        style={{
-          padding: "14px 18px",
-          borderTop: "1px solid var(--border)",
-          fontSize: 11,
-          color: "var(--text-muted)",
-          letterSpacing: "0.04em",
-        }}
-      >
-        Settled on Arc · USDC
+      <div style={{ padding: "14px 18px", borderTop: "1px solid var(--border)", fontSize: 11, color: "var(--text-muted)", letterSpacing: "0.04em" }}>
+        ERC-7710 · ERC-7715 · 1Shot
       </div>
     </aside>
   );
