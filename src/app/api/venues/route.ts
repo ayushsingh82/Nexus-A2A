@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
-import { listEdges, listVenues } from "@/graph/store";
+import { listAgents, listDelegations } from "@/agents/store";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
-  return NextResponse.json({
-    venues: listVenues(),
-    edges: listEdges(),
-  });
+export function GET() {
+  return NextResponse.json({ agents: listAgents(), delegations: listDelegations() });
 }

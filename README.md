@@ -1,67 +1,124 @@
-# Argo
+# Nexus — DeFi Yield Swarm
 
-> Cross-venue arbitrage agent. One graph. Real USDC. Settled on Arc.
+> Four agents. One delegation. Maximum yield.
 
-Argo maintains a live price graph across spot DEXs, CEXs, and chains. It runs continuous **negative-cycle detection** to find closed loops where capital comes back larger than it started. When one clears 5 bps net of fees + slippage, Argo sizes it against per-edge liquidity, routes USDC through **Circle Gateway + CCTP**, and settles on **Arc**. Idle capital parks in **USYC** for yield between captured arbs.
+Nexus is an autonomous DeFi yield optimizer built on MetaMask Smart Accounts. A master orchestrator agent receives a single ERC-7715 permission from the user's wallet, then subdelegates via ERC-7710 to three specialized sub-agents that autonomously deploy USDC across Aave v3, Uniswap V3, and Hyperliquid — rebalancing toward the highest APY on every tick.
 
-## Why it can only run here
+**Tracks targeted:** Best A2A Coordination · Best Agent ($6,000 potential)
 
-| | |
-|---|---|
-| **Sub-second finality** | Without it, the cycle vanishes during settlement and the leg is stranded mid-route. |
-| **~$0.01 per-tx in USDC** | Without it, per-route economics never close at retail size. |
-| **Deterministic ordering** | Sandwich-resistant by construction — cycle executes whole or not at all. |
-| **Native USDC settlement** | Currency = the asset, no conversion overhead. |
+---
 
-## How it works
+## The problem it solves
+
+Traditional DeFi yield requires the user to:
+1. Manually approve each protocol
+2. Periodically rebalance across protocols
+3. Pay ETH gas for every action
+
+Nexus removes all three. You sign once. The swarm handles the rest.
+
+---
+
+## Architecture
 
 ```
-ingest → reason → size → route → execute → park
-  ↑                                            │
-  └────────────────────────────────────────────┘
-                  every 500ms
+[User — MetaMask Flask]
+         │
+         │  ERC-7715 grant
+         │  "spend up to 500k USDC/week for yield"
+         ▼
+[Master Orchestrator] ─────────────────────────────
+         │                                         │
+         │ ERC-7710 subdelegation                  │ ERC-7710 subdelegation
+         │ cap: 200k USDC                          │ cap: 150k USDC
+         ▼                                         ▼
+   [Aave Agent]                            [Uniswap LP Agent]
+   Aave v3 · Base                          Uniswap V3 · Ethereum
+   USDC supply · ~5.2% APY                 USDC/ETH LP · ~8.4% APY
+                           │
+                           │ ERC-7710 subdelegation
+                           │ cap: 150k USDC
+                           ▼
+                    [Perp Funding Agent]
+                    Hyperliquid · BTC perp
+                    Funding rate · ~11.2% APY
 ```
 
-1. **Ingest** mids from Hyperliquid, Uniswap (Eth/Base/Arb), Curve, public CEX feeds
-2. **Reason** via Bellman-Ford / SPFA over `-log(rate × (1 − fees))`
-3. **Size** Kelly-bounded, capped at 10% of liquidity floor + hard cap
-4. **Route** Gateway moves USDC to source venue in <500ms; CCTP for chain hops
-5. **Execute** legs in deterministic order on Arc; record onchain receipt
-6. **Park** idle USDC sweeps into USYC for yield
+Every agent action is relayed by **1Shot** — gas paid in USDC, no ETH required.
 
-## Live dashboard
+---
 
-The dashboard isn't a static report — it's the agent running in front of you, on **real venue prices**.
+## How redelegation works (A2A track requirement)
 
-- **Autopilot** — toggle continuous scanning. Every ~9s Argo re-polls Hyperliquid, Binance, and Chainlink, rebuilds the graph, and pulls fresh state. Per-panel **status dots** show live/stale + "updated Ns ago" so you always know the data is real.
-- **Run capture cycle** — a one-click animated walkthrough of the full pipeline (scan → graph → detect cycle → Kelly-size → Gateway → CCTP → execute → settle on Arc → park in USYC) that fires an actual scan and reports what it captured.
-- **Live route graph** — tokens on a ring, every tradable edge as a chord, and the best negative cycle drawn in brand green with a USDC packet flowing the loop. Shown on the dashboard and the dedicated Route Graph page.
-- **Realized-PnL curve** — cumulative USDC captured across all settled cycles, drawn from real execution receipts.
-- **Live panels** — opportunities, treasury (Gateway-unified balance + USYC + EURC), monitored venues, and Arc receipts, all auto-refreshing.
+ERC-7710 lets the master agent issue signed on-chain subdelegations to sub-agents. Each delegation:
+- Has a **cap** (max USDC the sub-agent can deploy)
+- Has **caveats** (which protocol, which token, which action)
+- Is **revocable** by the user at any time
+- Can be **rebalanced** — master redelegates from underperformer to leader
 
-All client-side interactivity is dependency-free (bespoke SVG + CSS), seeded from a server-rendered first paint and kept live by a small `useLiveData` polling hook.
+This is trustless A2A coordination. The sub-agents never need the user's key.
 
-## Brand & pitch
+---
 
-- **`/pitch`** — an 8-slide deck (problem → solution → how it works → why Arc → audience & market → business model → ask), navigable by arrow keys, dots, or buttons.
-- **`/logo`** — the brand page: the Argo mark (a closed arbitrage cycle — three nodes, three edges), lockup, on-brand/ink/paper variants, palette, and downloadable SVGs.
+## Rebalancing logic
 
-## Circle stack — all eight load-bearing
+Every swarm tick:
+1. Fetch live APY from DeFiLlama (Aave, Uniswap) + Hyperliquid (funding rates)
+2. Compare weighted APY across agents
+3. If the spread between best and worst exceeds 100 bps:
+   - Master redelegates 5–15k USDC from underperformer to leader
+   - New delegation caps are set on-chain via ERC-7710
+4. All agents collect yield (1 day's worth per tick)
+5. 1Shot relayer settles all transactions in USDC
 
-| Product | Role |
+---
+
+## Live data sources (public, no auth)
+
+| Source      | Endpoint | What it provides |
+|---|---|---|
+| DeFiLlama   | `yields.llama.fi/pools` | Aave v3 USDC APY · Uniswap V3 USDC/ETH APY |
+| Hyperliquid | `api.hyperliquid.xyz/info` | BTC perpetual funding rate (annualized) |
+
+---
+
+## Tech stack
+
+- **Next.js 16** · TypeScript · Tailwind 4 · App Router
+- **@metamask/smart-accounts-kit** — EIP-7710 + ERC-7715
+- **viem** — smart account client + bundler
+- **1Shot API** — permissionless relayer, gas in USDC
+- **Venice AI** — market intelligence for rebalance decisions
+- **x402 protocol** — agent-to-agent micropayments for AI queries
+- DeFiLlama yields API · Hyperliquid info API
+
+---
+
+## Dashboard
+
+| Page | What it shows |
 |---|---|
-| **Wallets** | One Circle Wallet per venue |
-| **USDC** | Working capital + settlement |
-| **EURC** | FX-aware graph nodes (only EURC arb actually viable) |
-| **USYC** | Idle treasury parks here for yield |
-| **Gateway** | Sub-500ms cross-chain — the speed mechanism |
-| **CCTP** | Native USDC bridges |
-| **Paymaster** | All gas in USDC — clean per-route PnL |
-| **Contracts** | RouteRegistry on Arc — every arb is an onchain receipt |
+| `/dashboard` | Live KPIs, agent tasks, portfolio, execution log, agent registry |
+| `/dashboard/agents` | Full agent registry with delegation details |
+| `/dashboard/delegations` | Live delegation tree (master → sub-agents) |
+| `/dashboard/executions` | All onchain actions via 1Shot |
+| `/dashboard/portfolio` | Capital deployed per agent, weekly yield projection |
+| `/dashboard/ask` | Ask the swarm anything in plain English |
 
-## Tech
+---
 
-Next.js 16 · TypeScript · Tailwind 4 · Anthropic SDK · viem · `@circle-fin/developer-controlled-wallets` · Foundry (contracts) · Hyperliquid + Uniswap V3 + Curve clients
+## API surface
+
+| Endpoint | Returns |
+|---|---|
+| `GET /api/kpis` | Swarm KPIs (deployed, avg APY, yield earned, delegations active) |
+| `GET /api/opportunities` | Active yield tasks per agent |
+| `GET /api/executions` | Agent execution log (collect-yield, redelegate, deposit) |
+| `GET /api/treasury` | Portfolio state (total, deployed, idle, per-agent) |
+| `GET /api/venues` | Agent registry + delegation list |
+| `POST /api/scan` | Trigger one swarm tick (fetch APY → decide → collect yield) |
+
+---
 
 ## Run locally
 
@@ -72,23 +129,25 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000` for the marketing landing, `/dashboard` for the live agent, `/pitch` for the deck, and `/logo` for brand assets.
+Open `http://localhost:3000` for the landing page, `/dashboard` for the live swarm, `/pitch` for the deck.
 
-## API surface
+---
 
-| Endpoint | Returns |
-|---|---|
-| `GET /api/kpis` | swarm KPIs (opportunities scanned/captured, profit, latency, success rate) |
-| `GET /api/opportunities` | live cycle candidates above 5 bps |
-| `GET /api/executions` | recent onchain receipts |
-| `GET /api/treasury` | unified balance + per-venue working USDC + USYC |
-| `GET /api/venues` | nodes + edges in the live graph |
-| `POST /api/scan` | trigger one scan tick (jitter prices → search → maybe execute) |
+## Demo flow (90 seconds)
 
-## Status
+1. Show MetaMask Flask → ERC-7715 permission grant (user approves once)
+2. Dashboard loads — Agent Registry shows Master + 3 sub-agents with live APY
+3. Hit **"Run swarm cycle"** → delegation tree animates as master redelegates
+4. Execution log shows: collect-yield × 3 + redelegate (if triggered)
+5. Portfolio panel updates — deployed USDC and yield earned increase
+6. Autopilot ON — watch the swarm run continuously on real DeFiLlama + Hyperliquid data
 
-Phase 2 (backend) live. Next: Phase 3 venue clients (Hyperliquid public mids, Uniswap V3 QuoterV2, Curve), Phase 4 executor + reasoning, Phase 5 Circle wallets per venue. See [pending.md](./pending.md).
+---
 
-## Hackathon
+## Hackathon tracks
 
-Built for the [Agora Agents Hackathon](./hackathon.md) — Canteen × Circle × Arc, RFB 05 (Cross-Platform Arbitrage Agent).
+| Track | Requirement | How Nexus qualifies |
+|---|---|---|
+| **Best A2A Coordination** | Must use redelegation | Master → 3 sub-agents via ERC-7710. Caps adjust every tick based on live APY. |
+| **Best Agent** | MetaMask Smart Accounts in main flow | ERC-7715 permission grant is step 1. Every agent action uses the smart account. |
+| **Best Use of 1Shot** | Relay ERC-7710 txs through 1Shot mainnet | All agent transactions relayed via 1Shot — gas in USDC. |

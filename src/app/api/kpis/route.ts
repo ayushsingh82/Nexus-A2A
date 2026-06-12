@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { getKpis } from "@/graph/store";
+import { getKpis } from "@/agents/store";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export function GET() {
   return NextResponse.json({ kpis: getKpis() });
 }

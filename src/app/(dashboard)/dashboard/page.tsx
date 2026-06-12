@@ -2,27 +2,22 @@ import LiveDashboard from "@/components/LiveDashboard";
 import type { DashboardSnapshot } from "@/components/LiveDashboard";
 import {
   getKpis,
-  getTreasury,
-  listEdges,
+  getPortfolio,
+  listAgents,
+  listDelegations,
   listExecutions,
   listOpportunities,
-  listVenues,
-} from "@/graph/store";
+} from "@/agents/store";
 
 export const dynamic = "force-dynamic";
 
-/**
- * Server component: read the in-memory store once for a fast first paint, then
- * hand the snapshot to the client `LiveDashboard`, which keeps everything live
- * via polling + autopilot scanning.
- */
 export default function DashboardPage() {
   const initial: DashboardSnapshot = {
     kpis: getKpis(),
-    treasury: getTreasury(),
-    venues: listVenues(),
-    edges: listEdges(),
-    opportunities: listOpportunities(6),
+    portfolio: getPortfolio(),
+    agents: listAgents(),
+    delegations: listDelegations(),
+    opportunities: listOpportunities(),
     executions: listExecutions(10),
   };
 

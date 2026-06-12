@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { getTreasury } from "@/graph/store";
+import { getPortfolio } from "@/agents/store";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
-  return NextResponse.json({ treasury: getTreasury() });
+export function GET() {
+  return NextResponse.json({ portfolio: getPortfolio() });
 }
