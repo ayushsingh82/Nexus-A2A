@@ -3,36 +3,35 @@ type Props = {
   variant?: "default" | "on-brand";
 };
 
-export default function NexusLogo({ size = 24, variant = "default" }: Props) {
-  const stroke = variant === "on-brand" ? "#ffffff" : "#0001FC";
-  const dim = variant === "on-brand" ? "rgba(255,255,255,0.45)" : "rgba(0,1,252,0.4)";
+export default function NexusLogo({ size = 30, variant = "default" }: Props) {
+  const primary = variant === "on-brand" ? "#ffffff" : "#0001FC";
+  const soft    = variant === "on-brand" ? "rgba(255,255,255,0.5)" : "rgba(0,1,252,0.35)";
+  const bg      = variant === "on-brand" ? "rgba(255,255,255,0.15)" : "rgba(0,1,252,0.08)";
 
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 32 32"
+      viewBox="0 0 40 40"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-label="Nexus-A2A"
     >
-      {/* Central hub — orchestrator node */}
-      <circle cx="16" cy="16" r="3" fill={stroke} />
+      {/* Outer ring */}
+      <circle cx="20" cy="20" r="18" stroke={soft} strokeWidth="1.5" fill={bg} />
 
-      {/* Sub-agent nodes */}
-      <circle cx="16" cy="4"  r="2" fill={dim} />
-      <circle cx="27" cy="22" r="2" fill={dim} />
-      <circle cx="5"  cy="22" r="2" fill={dim} />
+      {/* Hub node */}
+      <circle cx="20" cy="20" r="5" fill={primary} />
 
-      {/* Delegation spokes from hub → agents */}
-      <line x1="16" y1="13" x2="16" y2="6"  stroke={stroke} strokeWidth="1.5" strokeLinecap="round" />
-      <line x1="18" y1="18" x2="25" y2="21" stroke={stroke} strokeWidth="1.5" strokeLinecap="round" />
-      <line x1="14" y1="18" x2="7"  y2="21" stroke={stroke} strokeWidth="1.5" strokeLinecap="round" />
+      {/* 3 satellite nodes */}
+      <circle cx="20" cy="6"  r="3" fill={primary} />
+      <circle cx="32" cy="27" r="3" fill={soft} />
+      <circle cx="8"  cy="27" r="3" fill={soft} />
 
-      {/* Cross-agent mesh — A2A links */}
-      <line x1="16" y1="6"  x2="25" y2="20" stroke={dim} strokeWidth="1" strokeLinecap="round" strokeDasharray="2 2" />
-      <line x1="25" y1="20" x2="7"  y2="20" stroke={dim} strokeWidth="1" strokeLinecap="round" strokeDasharray="2 2" />
-      <line x1="7"  y1="20" x2="16" y2="6"  stroke={dim} strokeWidth="1" strokeLinecap="round" strokeDasharray="2 2" />
+      {/* Spokes hub → satellites */}
+      <line x1="20" y1="15" x2="20" y2="9"  stroke={primary} strokeWidth="2" strokeLinecap="round" />
+      <line x1="24" y1="23" x2="29" y2="25" stroke={primary} strokeWidth="2" strokeLinecap="round" />
+      <line x1="16" y1="23" x2="11" y2="25" stroke={primary} strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
 }

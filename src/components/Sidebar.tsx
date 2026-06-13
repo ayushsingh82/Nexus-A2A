@@ -8,11 +8,13 @@ const SidebarWallet = dynamic(() => import("@/components/SidebarWallet"), { ssr:
 
 const NAV = [
   { href: "/dashboard",             icon: "▦", label: "Dashboard" },
-  { href: "/dashboard/command",     icon: "⌘", label: "Command",       badge: "NEW" },
+  { href: "/dashboard/command",     icon: "⌘", label: "Command",        badge: "NEW" },
   { href: "/dashboard/agents",      icon: "◈", label: "Agent Registry" },
   { href: "/dashboard/delegations", icon: "⟲", label: "Delegation Tree" },
-  { href: "/dashboard/executions",  icon: "▶", label: "Executions" },
   { href: "/dashboard/portfolio",   icon: "≋", label: "Portfolio" },
+  { href: "/dashboard/executions",  icon: "▶", label: "Executions" },
+  { href: "/dashboard/risk",        icon: "◉", label: "Risk Engine" },
+  { href: "/dashboard/strategy",    icon: "⬡", label: "Strategy Lab" },
   { href: "/dashboard/ask",         icon: "✦", label: "Ask the swarm" },
 ];
 
