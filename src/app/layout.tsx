@@ -24,7 +24,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nexus — DeFi Yield Swarm",
+  title: "Nexus-A2A — DeFi Yield Swarm",
   description:
     "Four agents. One delegation. Maximum yield. Master orchestrator redelegates via ERC-7710 to Aave, Uniswap, and Hyperliquid sub-agents — autonomously maximising your USDC yield.",
 };

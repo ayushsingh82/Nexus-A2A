@@ -181,7 +181,7 @@ function ParamTile({ label, value, href }: { label: string; value: string; href?
           display: "block",
           padding: "14px 16px",
           border: "1px solid var(--border)",
-          borderRadius: 10,
+          borderRadius: 0,
           background: "var(--bg-elevated)",
           textDecoration: "none",
         }}
@@ -195,7 +195,7 @@ function ParamTile({ label, value, href }: { label: string; value: string; href?
       style={{
         padding: "14px 16px",
         border: "1px solid var(--border)",
-        borderRadius: 10,
+        borderRadius: 0,
         background: "var(--bg-elevated)",
       }}
     >

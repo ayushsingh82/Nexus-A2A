@@ -68,7 +68,7 @@ export default function AskPage() {
               flex: 1,
               minWidth: 240,
               padding: "12px 14px",
-              borderRadius: 10,
+              borderRadius: 0,
               border: "1px solid var(--border-strong)",
               fontSize: 14,
               fontFamily: "var(--font-geist-sans)",
@@ -153,7 +153,7 @@ export default function AskPage() {
                     key={e.label}
                     style={{
                       border: "1px solid var(--border)",
-                      borderRadius: 10,
+                      borderRadius: 0,
                       padding: "8px 12px",
                       background: "var(--bg-surface)",
                       minWidth: 96,
@@ -205,7 +205,7 @@ export default function AskPage() {
 const exampleChipStyle: React.CSSProperties = {
   fontSize: 12,
   padding: "6px 12px",
-  borderRadius: 999,
+  borderRadius: 0,
   border: "1px solid var(--border-strong)",
   background: "var(--bg-surface)",
   color: "var(--text-secondary)",

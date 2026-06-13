@@ -22,13 +22,13 @@ export default function Sidebar() {
             style={{
               width: 36,
               height: 36,
-              borderRadius: 10,
-              background: "linear-gradient(145deg, #01b73e 0%, #019a35 100%)",
+              borderRadius: 0,
+              background: "linear-gradient(145deg, #0ED96B 0%, #0BC460 100%)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               flexShrink: 0,
-              boxShadow: "0 2px 6px rgba(1, 183, 62, 0.22)",
+              boxShadow: "0 2px 6px rgba(14, 217, 107, 0.22)",
               fontSize: 18,
             }}
           >
@@ -36,7 +36,7 @@ export default function Sidebar() {
           </div>
           <div>
             <div className="font-brand" style={{ fontSize: 22, color: "var(--text-primary)", lineHeight: 1, letterSpacing: "-0.03em" }}>
-              Nexus
+              Nexus-A2A
             </div>
             <div style={{ fontSize: 10, color: "var(--text-muted)", letterSpacing: "0.08em", textTransform: "uppercase", marginTop: 4, fontWeight: 600 }}>
               yield swarm

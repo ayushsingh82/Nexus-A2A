@@ -149,7 +149,7 @@ function Controls({ index, go }: { index: number; go: (n: number) => void }) {
             style={{
               width: n === index ? 22 : 8,
               height: 8,
-              borderRadius: 999,
+              borderRadius: 0,
               border: "none",
               cursor: "pointer",
               background: n === index ? "var(--brand-green)" : "var(--border-strong)",
@@ -290,7 +290,7 @@ const SLIDES: Array<() => React.ReactElement> = [
                   justifyContent: "center",
                   width: 28,
                   height: 28,
-                  borderRadius: 8,
+                  borderRadius: 0,
                   background: "rgba(1,183,62,0.10)",
                   color: "var(--teal-text)",
                   fontFamily: "var(--font-geist-mono)",
@@ -503,7 +503,7 @@ function Kicker({ children, centered = false }: { children: React.ReactNode; cen
         textTransform: "uppercase",
         color: "var(--teal-text)",
         padding: "5px 12px",
-        borderRadius: 999,
+        borderRadius: 0,
         background: "rgba(1, 183, 62, 0.10)",
         border: "1px solid rgba(1, 183, 62, 0.22)",
         margin: centered ? "0 auto" : undefined,
@@ -549,7 +549,7 @@ function Tile({ size = 30 }: { size?: number }) {
 const cardStyle: React.CSSProperties = {
   background: "var(--bg-elevated)",
   border: "1px solid var(--border)",
-  borderRadius: 14,
+  borderRadius: 0,
   padding: "18px 18px 20px",
 };
 const cardHeadStyle: React.CSSProperties = {

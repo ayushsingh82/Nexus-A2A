@@ -236,7 +236,7 @@ function Banner({ kind, children }: { kind: "ok" | "warn" | "error"; children: R
         borderColor: kind === "ok" ? "rgba(1,183,62,0.32)" : kind === "warn" ? "rgba(245,158,11,0.32)" : "rgba(239,68,68,0.32)",
         background: bg,
         color,
-        borderRadius: 8,
+        borderRadius: 0,
         fontSize: 12.5,
         lineHeight: 1.55,
       }}

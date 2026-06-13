@@ -63,7 +63,7 @@ export default function GraphPage() {
                 fontSize: 13,
                 fontWeight: 600,
                 padding: "6px 14px",
-                borderRadius: 999,
+                borderRadius: 0,
                 background: t === "USDC" ? "rgba(1, 183, 62, 0.12)" : "var(--bg-surface)",
                 color: t === "USDC" ? "var(--teal-text)" : "var(--text-primary)",
                 border: "1px solid",

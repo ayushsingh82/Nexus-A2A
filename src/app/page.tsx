@@ -21,32 +21,21 @@ export default function Home() {
 /* ── Nav ────────────────────────────────────────────────────── */
 function Nav() {
   return (
-    <header style={{ position: "sticky", top: 0, zIndex: 30, background: "rgba(255,255,255,0.78)", backdropFilter: "blur(8px)", borderBottom: "1px solid var(--border)", overflow: "hidden" }}>
-      <div style={{ position: "absolute", inset: 0, opacity: 0.55, pointerEvents: "none" }}>
-        <HeaderBackground />
-      </div>
-      <div className="landing-nav" style={{ position: "relative", zIndex: 1, maxWidth: 1180, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+    <header style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 30, background: "rgba(241,239,233,0.92)", backdropFilter: "blur(8px)" }}>
+      <div className="landing-nav" style={{ maxWidth: 1180, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 32px" }}>
         <Link href="/" style={{ textDecoration: "none" }}>
-          <span className="font-brand" style={{ fontSize: 26, color: "var(--text-primary)", lineHeight: 1, letterSpacing: "-0.03em" }}>Nexus</span>
+          <span className="font-brand" style={{ fontSize: 26, color: "var(--text-primary)", lineHeight: 1, letterSpacing: "-0.03em" }}>Nexus-A2A</span>
         </Link>
-        <nav className="landing-nav__links">
-          <a href="#how" style={navLinkStyle} className="landing-nav__hide-sm">How it works</a>
-          <a href="#why" style={navLinkStyle} className="landing-nav__hide-sm">Why MetaMask</a>
-          <a href="#stack" style={navLinkStyle} className="landing-nav__hide-sm">Stack</a>
-          <Link href="/pitch" style={navLinkStyle} className="landing-nav__hide-sm">Pitch</Link>
-          <Link href="/dashboard" className="btn-brand-outline">Open dashboard →</Link>
-        </nav>
+        <Link href="/dashboard" className="btn-brand-outline">Open dashboard →</Link>
       </div>
     </header>
   );
 }
 
-const navLinkStyle: React.CSSProperties = { fontSize: 13, color: "var(--text-secondary)", textDecoration: "none", fontWeight: 500 };
-
 /* ── Hero ───────────────────────────────────────────────────── */
 function Hero() {
   return (
-    <section className="hero" style={{ position: "relative", overflow: "hidden" }}>
+    <section className="hero" style={{ position: "relative", overflow: "hidden", paddingTop: "calc(72px + 64px)" }}>
       <HeroBackground />
       <div className="hero__wrap" style={{ position: "relative", zIndex: 1 }}>
         <div className="hero__eyebrow">
@@ -58,7 +47,7 @@ function Hero() {
           <span className="underline-curve">Maximum yield.</span>
         </h1>
         <p className="hero__subtitle">
-          Nexus lets a master orchestrator agent receive a single ERC-7715 permission from your MetaMask wallet — then subdelegates via ERC-7710 to three specialized sub-agents that autonomously deploy your USDC across Aave, Uniswap, and Hyperliquid for best-in-class yield.
+          Nexus-A2A lets a master orchestrator agent receive a single ERC-7715 permission from your MetaMask wallet — then subdelegates via ERC-7710 to three specialized sub-agents that autonomously deploy your USDC across Aave, Uniswap, and Hyperliquid for best-in-class yield.
         </p>
         <div className="hero__ctas">
           <Link href="/dashboard" className="btn-primary" style={{ padding: "12px 22px", fontSize: 14 }}>
@@ -136,10 +125,10 @@ function AgentLoop() {
         <p style={{ fontSize: 16, color: "var(--text-secondary)", marginTop: 16, maxWidth: 620, lineHeight: 1.55 }}>
           You sign once. The swarm handles the rest — deploying, earning, and rebalancing across protocols autonomously.
         </p>
-        <div style={{ position: "relative", marginTop: 56, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0, border: "1px solid var(--border)", borderRadius: 16, overflow: "hidden", background: "var(--bg-elevated)" }} className="agent-loop">
+        <div style={{ position: "relative", marginTop: 56, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0, border: "1px solid var(--border)", borderRadius: 0, overflow: "hidden", background: "var(--bg-elevated)" }} className="agent-loop">
           {steps.map((s, i) => (
             <div key={s.n} style={{ position: "relative", padding: "28px 26px", borderRight: (i + 1) % 3 !== 0 ? "1px solid var(--border)" : "none", borderBottom: i < 3 ? "1px solid var(--border)" : "none", background: "var(--bg-elevated)", transition: "background 0.2s" }}>
-              <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 30, height: 30, borderRadius: 8, background: "rgba(1, 183, 62, 0.10)", color: "var(--teal-text)", fontFamily: "var(--font-geist-mono)", fontSize: 12, fontWeight: 700, letterSpacing: "0.04em" }}>
+              <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 30, height: 30, borderRadius: 0, background: "rgba(14, 217, 107, 0.10)", color: "var(--teal-text)", fontFamily: "var(--font-geist-mono)", fontSize: 12, fontWeight: 700, letterSpacing: "0.04em" }}>
                 {s.n}
               </div>
               <div style={{ fontSize: 19, fontWeight: 700, marginTop: 14, letterSpacing: "-0.01em", color: "var(--text-primary)" }}>{s.title}</div>
@@ -168,11 +157,11 @@ function WhyMetaMask() {
       <div style={{ maxWidth: 1080, margin: "0 auto" }}>
         <SectionEyebrow>Why MetaMask Smart Accounts are load-bearing</SectionEyebrow>
         <h2 style={{ fontSize: "clamp(28px, 3.5vw, 40px)", lineHeight: 1.1, letterSpacing: "-0.02em", maxWidth: 760, marginTop: 12 }}>
-          Nexus cannot work without trustless on-chain redelegation.
+          Nexus-A2A cannot work without trustless on-chain redelegation.
         </h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14, marginTop: 40 }}>
           {physics.map((p) => (
-            <div key={p.label} style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 14, padding: "26px 24px" }}>
+            <div key={p.label} style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 0, padding: "26px 24px" }}>
               <div style={{ fontFamily: "var(--font-geist-mono)", fontSize: 32, fontWeight: 700, color: "var(--teal-text)", letterSpacing: "-0.02em" }}>{p.stat}</div>
               <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--text-muted)", marginTop: 6 }}>{p.label}</div>
               <div style={{ fontSize: 13.5, color: "var(--text-secondary)", marginTop: 14, lineHeight: 1.55 }}>{p.body}</div>
@@ -197,7 +186,7 @@ function MetaMaskStack() {
     { name: "MetaMask Flask",     role: "Required wallet. Supports ERC-7715 advanced permissions + EIP-7702 auto-upgrade.", load: "core" },
   ];
   const loadStyle: Record<string, React.CSSProperties> = {
-    critical: { background: "rgba(1, 183, 62, 0.12)", color: "var(--teal-text)",       borderColor: "rgba(1, 183, 62, 0.32)" },
+    critical: { background: "rgba(14, 217, 107, 0.12)", color: "var(--teal-text)",       borderColor: "rgba(14, 217, 107, 0.32)" },
     unique:   { background: "rgba(37, 99, 235, 0.10)", color: "#1d4ed8",               borderColor: "rgba(37, 99, 235, 0.25)" },
     core:     { background: "rgba(0, 0, 0, 0.04)",     color: "var(--text-secondary)", borderColor: "var(--border-strong)" },
   };
@@ -214,10 +203,10 @@ function MetaMaskStack() {
         </p>
         <div style={{ marginTop: 44, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 14 }}>
           {products.map((p) => (
-            <div key={p.name} style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 12, padding: "20px 20px 22px", position: "relative" }}>
+            <div key={p.name} style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 0, padding: "20px 20px 22px", position: "relative" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div style={{ fontFamily: "var(--font-geist-mono)", fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>{p.name}</div>
-                <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", padding: "3px 8px", borderRadius: 999, border: "1px solid", ...loadStyle[p.load] }}>
+                <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", padding: "3px 8px", borderRadius: 0, border: "1px solid", ...loadStyle[p.load] }}>
                   {p.load}
                 </span>
               </div>
@@ -241,7 +230,7 @@ function DashboardFeatures() {
     { title: "Execution log",       body: "Every agent action — collect-yield, redelegate, deposit — as an onchain receipt via 1Shot relayer. Gas in USDC.", tag: "new" },
   ];
   const tagStyle: Record<string, React.CSSProperties> = {
-    new:         { background: "rgba(1, 183, 62, 0.12)", color: "var(--teal-text)", borderColor: "rgba(1, 183, 62, 0.32)" },
+    new:         { background: "rgba(14, 217, 107, 0.12)", color: "var(--teal-text)", borderColor: "rgba(14, 217, 107, 0.32)" },
     live:        { background: "rgba(37, 99, 235, 0.10)", color: "#1d4ed8", borderColor: "rgba(37, 99, 235, 0.25)" },
     interactive: { background: "rgba(124, 58, 237, 0.10)", color: "#5b21b6", borderColor: "rgba(124, 58, 237, 0.25)" },
     demo:        { background: "rgba(217, 119, 6, 0.10)", color: "#b45309", borderColor: "rgba(217, 119, 6, 0.25)" },
@@ -259,10 +248,10 @@ function DashboardFeatures() {
         </p>
         <div style={{ marginTop: 44, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14 }}>
           {features.map((f) => (
-            <div key={f.title} style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 14, padding: "22px 22px 24px" }}>
+            <div key={f.title} style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 0, padding: "22px 22px 24px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
                 <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: "-0.01em", color: "var(--text-primary)" }}>{f.title}</div>
-                <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", padding: "3px 8px", borderRadius: 999, border: "1px solid", ...tagStyle[f.tag] }}>{f.tag}</span>
+                <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", padding: "3px 8px", borderRadius: 0, border: "1px solid", ...tagStyle[f.tag] }}>{f.tag}</span>
               </div>
               <div style={{ fontSize: 13.5, color: "var(--text-secondary)", marginTop: 12, lineHeight: 1.6 }}>{f.body}</div>
             </div>
@@ -300,7 +289,7 @@ function FinalCTA() {
 /* ── Section eyebrow ────────────────────────────────────────── */
 function SectionEyebrow({ children, centered = false }: { children: React.ReactNode; centered?: boolean }) {
   return (
-    <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--teal-text)", padding: "5px 12px", borderRadius: 999, background: "rgba(1, 183, 62, 0.10)", border: "1px solid rgba(1, 183, 62, 0.22)", margin: centered ? "0 auto" : undefined }}>
+    <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--teal-text)", padding: "5px 12px", borderRadius: 0, background: "rgba(14, 217, 107, 0.10)", border: "1px solid rgba(14, 217, 107, 0.22)", margin: centered ? "0 auto" : undefined }}>
       <span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--brand-green)" }} />
       {children}
     </div>
@@ -341,7 +330,7 @@ function Footer() {
       <div style={{ maxWidth: 1180, margin: "0 auto", display: "grid", gridTemplateColumns: "1.4fr repeat(3, 1fr)", gap: 28 }} className="footer-grid">
         <div>
           <div className="flex items-center gap-3">
-            <span className="font-brand" style={{ fontSize: 24, color: "var(--text-primary)", lineHeight: 1 }}>Nexus</span>
+            <span className="font-brand" style={{ fontSize: 24, color: "var(--text-primary)", lineHeight: 1 }}>Nexus-A2A</span>
             <span style={{ fontSize: 11, color: "var(--text-muted)", letterSpacing: "0.06em", textTransform: "uppercase" }}>yield swarm · metamask</span>
           </div>
           <p style={{ fontSize: 12.5, color: "var(--text-muted)", marginTop: 12, maxWidth: 280, lineHeight: 1.55 }}>
@@ -367,7 +356,7 @@ function Footer() {
       </div>
       <div style={{ maxWidth: 1180, margin: "28px auto 0", paddingTop: 18, borderTop: "1px solid var(--border)", display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", fontSize: 12, color: "var(--text-muted)" }}>
         <span>ERC-7710 · ERC-7715 · EIP-7702 · 1Shot Relayer · Venice AI</span>
-        <span>© {new Date().getFullYear()} Nexus</span>
+        <span>© {new Date().getFullYear()} Nexus-A2A</span>
       </div>
       <style>{`
         @media (max-width: 760px) { .footer-grid { grid-template-columns: 1fr 1fr !important; } }

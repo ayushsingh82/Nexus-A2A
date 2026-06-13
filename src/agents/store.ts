@@ -263,12 +263,12 @@ function buildPortfolio(agents: Agent[]): Portfolio {
 }
 
 /**
- * Cold-start seed: pre-funded portfolio with 30 days of history.
+ * Cold-start seed: pre-funded portfolio with 7 days of history.
  * First runSwarm() layered on top with live APY data.
  */
 function createSeed(): Store {
   const now = Date.now();
-  const launchMs = now - 30 * 24 * 60 * 60 * 1000; // 30 days ago
+  const launchMs = now - 7 * 24 * 60 * 60 * 1000; // 7 days ago
 
   const agents: Agent[] = [
     {
@@ -293,7 +293,7 @@ function createSeed(): Store {
       status: "active",
       delegatedCapUsdc: 200_000,
       deployedUsdc: 190_000,
-      earnedUsdc: round(190_000 * 0.052 / 365 * 30, 2), // ~$813
+      earnedUsdc: round(190_000 * 0.052 / 365 * 7, 2),
       currentApyBps: 520,
       lastActionAtMs: now,
     },
@@ -306,7 +306,7 @@ function createSeed(): Store {
       status: "active",
       delegatedCapUsdc: 150_000,
       deployedUsdc: 142_000,
-      earnedUsdc: round(142_000 * 0.084 / 365 * 30, 2), // ~$982
+      earnedUsdc: round(142_000 * 0.084 / 365 * 7, 2),
       currentApyBps: 840,
       lastActionAtMs: now,
     },
@@ -319,7 +319,7 @@ function createSeed(): Store {
       status: "active",
       delegatedCapUsdc: 150_000,
       deployedUsdc: 138_000,
-      earnedUsdc: round(138_000 * 0.112 / 365 * 30, 2), // ~$1,271
+      earnedUsdc: round(138_000 * 0.112 / 365 * 7, 2),
       currentApyBps: 1120,
       lastActionAtMs: now,
     },
@@ -388,14 +388,14 @@ function createSeed(): Store {
     rebalanceCount: 8,
     delegationsActive: 3,
     lastSwarmAtMs: now,
-    swarmRunCount: 30,
+    swarmRunCount: 7,
   };
 
-  // seed 12 historical executions
+  // seed 12 historical executions spread over the past week
   const executions: AgentExecution[] = [];
   for (let i = 0; i < 12; i++) {
     const agent = subAgents[i % subAgents.length];
-    const daysAgo = 12 - i;
+    const daysAgo = Math.floor((12 - i) * 7 / 12);
     const dailyYield = round(agent.deployedUsdc * (agent.currentApyBps / 10_000) / 365, 4);
     executions.push({
       id: `EX-SEED-${i.toString().padStart(3, "0")}`,

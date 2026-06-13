@@ -115,7 +115,7 @@ function ControlBar({ kpis, agentCount, delegationCount, autopilot, onToggleAuto
 }) {
   const lastSwarmAgo = kpis.lastSwarmAtMs ? timeAgo(kpis.lastSwarmAtMs) : "never";
   return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", padding: "14px 18px", border: "1px solid var(--border)", borderRadius: 12, background: "linear-gradient(180deg, rgba(1,183,62,0.04) 0%, var(--bg-elevated) 100%)", marginBottom: 18 }}>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", padding: "14px 18px", border: "1px solid var(--border)", borderRadius: 0, background: "linear-gradient(180deg, rgba(1,183,62,0.04) 0%, var(--bg-elevated) 100%)", marginBottom: 18 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
         <span className="live-pill">
           <span className="live-pill__dot" />
@@ -183,7 +183,7 @@ function Sparkline({ bars, accent }: { bars: number[]; accent: boolean }) {
   return (
     <div style={{ display: "flex", alignItems: "flex-end", gap: 2, marginTop: 14, height: 32 }}>
       {bars.map((b, i) => (
-        <div key={i} style={{ flex: 1, height: `${(b / max) * 100}%`, borderRadius: 1, background: accent ? "var(--brand-green)" : "var(--border-strong)", opacity: accent ? 0.85 - (bars.length - 1 - i) * 0.04 : 0.6 - (bars.length - 1 - i) * 0.03 }} />
+        <div key={i} style={{ flex: 1, height: `${(b / max) * 100}%`, borderRadius: 0, background: accent ? "var(--brand-green)" : "var(--border-strong)", opacity: accent ? 0.85 - (bars.length - 1 - i) * 0.04 : 0.6 - (bars.length - 1 - i) * 0.03 }} />
       ))}
     </div>
   );
@@ -284,7 +284,7 @@ function ProportionalBar({ segments }: { segments: { label: string; value: numbe
   const total = segments.reduce((s, x) => s + x.value, 0) || 1;
   return (
     <div style={{ marginTop: 18 }}>
-      <div style={{ display: "flex", width: "100%", height: 10, borderRadius: 6, overflow: "hidden", border: "1px solid var(--border)" }}>
+      <div style={{ display: "flex", width: "100%", height: 10, borderRadius: 0, overflow: "hidden", border: "1px solid var(--border)" }}>
         {segments.map((s) => (
           <div key={s.label} title={`${s.label}: $${s.value.toLocaleString()}`} style={{ width: `${(s.value / total) * 100}%`, background: s.color, transition: "width 0.4s ease" }} />
         ))}
@@ -292,7 +292,7 @@ function ProportionalBar({ segments }: { segments: { label: string; value: numbe
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, gap: 8, flexWrap: "wrap" }}>
         {segments.map((s) => (
           <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ width: 8, height: 8, borderRadius: 2, background: s.color, display: "inline-block" }} />
+            <span style={{ width: 8, height: 8, borderRadius: 0, background: s.color, display: "inline-block" }} />
             <span style={{ fontSize: 11.5, color: "var(--text-secondary)" }}>{s.label}</span>
             <span className="font-mono" style={{ fontSize: 11.5, color: "var(--text-muted)" }}>${s.value.toLocaleString()}</span>
           </div>
@@ -363,7 +363,7 @@ function AgentRegistryPanel({ agents, delegations, status, updatedAt }: { agents
                   <div style={{ fontWeight: 700, fontSize: 14, color: "var(--text-primary)" }}>{agent.name}</div>
                   <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2, fontFamily: "var(--font-geist-mono)" }}>{agent.protocol} · {agent.chain}</div>
                 </div>
-                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", padding: "3px 9px", borderRadius: 999, background: s.bg, color: s.color }}>{agent.status}</span>
+                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", padding: "3px 9px", borderRadius: 0, background: s.bg, color: s.color }}>{agent.status}</span>
               </div>
               <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                 <div>
@@ -390,7 +390,7 @@ function AgentRegistryPanel({ agents, delegations, status, updatedAt }: { agents
                 </div>
               </div>
               {del && (
-                <div style={{ marginTop: 12, padding: "8px 10px", background: "var(--bg-surface)", borderRadius: 8, fontSize: 11, color: "var(--text-muted)", fontFamily: "var(--font-geist-mono)" }}>
+                <div style={{ marginTop: 12, padding: "8px 10px", background: "var(--bg-surface)", borderRadius: 0, fontSize: 11, color: "var(--text-muted)", fontFamily: "var(--font-geist-mono)" }}>
                   {del.id} · {del.permissionType} · {((del.usedUsdc / del.capUsdc) * 100).toFixed(0)}% used
                 </div>
               )}

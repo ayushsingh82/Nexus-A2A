@@ -171,7 +171,7 @@ function PrimaryLockup() {
         style={{
           marginTop: 12,
           border: "1px solid var(--border)",
-          borderRadius: 20,
+          borderRadius: 0,
           background: "var(--bg-surface)",
           padding: "64px 28px",
           display: "flex",
@@ -238,7 +238,7 @@ function Variants() {
             key={t.label}
             style={{
               border: "1px solid var(--border)",
-              borderRadius: 14,
+              borderRadius: 0,
               overflow: "hidden",
               background: "var(--bg-elevated)",
             }}
@@ -282,7 +282,7 @@ function Wordmark() {
         style={{
           marginTop: 12,
           border: "1px solid var(--border)",
-          borderRadius: 16,
+          borderRadius: 0,
           background: "var(--bg-elevated)",
           padding: "40px 28px",
           display: "flex",
@@ -321,7 +321,7 @@ function Clearspace() {
         <div
           style={{
             border: "1px solid var(--border)",
-            borderRadius: 14,
+            borderRadius: 0,
             background: "var(--bg-elevated)",
             padding: 28,
             display: "flex",
@@ -335,7 +335,7 @@ function Clearspace() {
                 position: "absolute",
                 inset: 0,
                 border: "1px dashed var(--border-strong)",
-                borderRadius: 18,
+                borderRadius: 0,
               }}
             />
             <BrandTile size={84} />
@@ -344,7 +344,7 @@ function Clearspace() {
         <div
           style={{
             border: "1px solid var(--border)",
-            borderRadius: 14,
+            borderRadius: 0,
             background: "var(--bg-elevated)",
             padding: 24,
           }}
@@ -413,7 +413,7 @@ function Palette() {
             style={{
               textAlign: "left",
               border: "1px solid var(--border)",
-              borderRadius: 14,
+              borderRadius: 0,
               overflow: "hidden",
               background: "var(--bg-elevated)",
               cursor: "pointer",
@@ -466,7 +466,7 @@ function Meaning() {
         style={{
           marginTop: 12,
           border: "1px solid var(--border)",
-          borderRadius: 16,
+          borderRadius: 0,
           background: "var(--bg-surface)",
           padding: "8px 4px",
         }}
@@ -514,7 +514,7 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
         textTransform: "uppercase",
         color: "var(--teal-text)",
         padding: "5px 12px",
-        borderRadius: 999,
+        borderRadius: 0,
         background: "rgba(1, 183, 62, 0.10)",
         border: "1px solid rgba(1, 183, 62, 0.22)",
       }}
