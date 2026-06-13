@@ -1,8 +1,8 @@
-# Nexus — DeFi Yield Swarm
+# Nexus-A2A — DeFi Yield Swarm
 
 > Four agents. One delegation. Maximum yield.
 
-Nexus is an autonomous DeFi yield optimizer built on MetaMask Smart Accounts. A master orchestrator agent receives a single ERC-7715 permission from the user's wallet, then subdelegates via ERC-7710 to three specialized sub-agents that autonomously deploy USDC across Aave v3, Uniswap V3, and Hyperliquid — rebalancing toward the highest APY on every tick.
+Nexus-A2A is an autonomous DeFi yield optimizer built on MetaMask Smart Accounts. A master orchestrator agent receives a single ERC-7715 permission from the user's wallet, then subdelegates via ERC-7710 to three specialized sub-agents that autonomously deploy USDC across Aave v3, Uniswap V3, and Hyperliquid — rebalancing toward the highest APY on every tick.
 
 **Tracks targeted:** Best A2A Coordination · Best Agent ($6,000 potential)
 
@@ -15,7 +15,7 @@ Traditional DeFi yield requires the user to:
 2. Periodically rebalance across protocols
 3. Pay ETH gas for every action
 
-Nexus removes all three. You sign once. The swarm handles the rest.
+Nexus-A2A removes all three. You sign once. The swarm handles the rest.
 
 ---
 
@@ -146,7 +146,7 @@ Open `http://localhost:3000` for the landing page, `/dashboard` for the live swa
 
 ## Hackathon tracks
 
-| Track | Requirement | How Nexus qualifies |
+| Track | Requirement | How Nexus-A2A qualifies |
 |---|---|---|
 | **Best A2A Coordination** | Must use redelegation | Master → 3 sub-agents via ERC-7710. Caps adjust every tick based on live APY. |
 | **Best Agent** | MetaMask Smart Accounts in main flow | ERC-7715 permission grant is step 1. Every agent action uses the smart account. |

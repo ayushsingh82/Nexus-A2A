@@ -21,12 +21,12 @@ export default function Home() {
 /* ── Nav ────────────────────────────────────────────────────── */
 function Nav() {
   return (
-    <header style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 30, background: "rgba(241,239,233,0.92)", backdropFilter: "blur(8px)" }}>
-      <div className="landing-nav" style={{ maxWidth: 1180, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 32px" }}>
+    <header style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 30, background: "rgba(255,255,255,0.97)", backdropFilter: "blur(8px)" }}>
+      <div className="landing-nav" style={{ maxWidth: 1180, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 32px" }}>
         <Link href="/" style={{ textDecoration: "none" }}>
-          <span className="font-brand" style={{ fontSize: 26, color: "var(--text-primary)", lineHeight: 1, letterSpacing: "-0.03em" }}>Nexus-A2A</span>
+          <span className="font-brand" style={{ fontSize: 22, color: "#000", lineHeight: 1, letterSpacing: "-0.03em" }}>Nexus-A2A</span>
         </Link>
-        <Link href="/dashboard" className="btn-brand-outline">Open dashboard →</Link>
+        <Link href="/dashboard" className="btn-brand-outline" style={{ fontSize: 13, padding: "8px 18px" }}>Open dashboard →</Link>
       </div>
     </header>
   );
@@ -35,43 +35,46 @@ function Nav() {
 /* ── Hero ───────────────────────────────────────────────────── */
 function Hero() {
   return (
-    <section className="hero" style={{ position: "relative", overflow: "hidden", paddingTop: "calc(72px + 64px)" }}>
-      <HeroBackground />
-      <div className="hero__wrap" style={{ position: "relative", zIndex: 1 }}>
-        <div className="hero__eyebrow">
-          <span className="hero__eyebrow-dot" />
+    <section style={{ background: "#0001FC", minHeight: "92dvh", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "calc(64px + 72px)", paddingBottom: 96, paddingLeft: 32, paddingRight: 32, position: "relative", overflow: "hidden" }}>
+      {/* subtle depth overlay */}
+      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.07) 0%, transparent 60%)", pointerEvents: "none" }} />
+      <div style={{ maxWidth: 900, width: "100%", position: "relative", zIndex: 1 }}>
+        {/* eyebrow */}
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 10, fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#fff", background: "#000", border: "1px solid #b0b3be", padding: "6px 14px", marginBottom: 28 }}>
           DeFi Yield Swarm · ERC-7710 · MetaMask Smart Accounts
         </div>
-        <h1 className="hero__title">
-          Four agents. One delegation.{" "}
-          <span className="underline-curve">Maximum yield.</span>
+        {/* headline */}
+        <h1 style={{ fontSize: "clamp(42px, 7vw, 76px)", fontWeight: 800, lineHeight: 1.0, letterSpacing: "-0.035em", color: "#fff", fontFamily: "var(--font-space), system-ui, sans-serif", margin: 0 }}>
+          Four agents.<br />
+          One delegation.<br />
+          <span style={{ color: "rgba(255,255,255,0.65)" }}>Maximum yield.</span>
         </h1>
-        <p className="hero__subtitle">
+        {/* subtitle */}
+        <p style={{ fontSize: "clamp(15px, 1.8vw, 17px)", color: "rgba(255,255,255,0.6)", lineHeight: 1.65, maxWidth: 620, marginTop: 28, letterSpacing: "-0.005em" }}>
           Nexus-A2A lets a master orchestrator agent receive a single ERC-7715 permission from your MetaMask wallet — then subdelegates via ERC-7710 to three specialized sub-agents that autonomously deploy your USDC across Aave, Uniswap, and Hyperliquid for best-in-class yield.
         </p>
-        <div className="hero__ctas">
-          <Link href="/dashboard" className="btn-primary" style={{ padding: "12px 22px", fontSize: 14 }}>
+        {/* CTAs */}
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 40 }}>
+          <Link href="/dashboard" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "13px 26px", background: "#fff", color: "#0001FC", fontSize: 14, fontWeight: 700, textDecoration: "none", letterSpacing: "-0.01em" }}>
             Open the live dashboard →
           </Link>
-          <a href="#how" className="btn-neutral-outline">See how it works</a>
+          <a href="#how" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "13px 26px", background: "transparent", color: "rgba(255,255,255,0.7)", fontSize: 14, fontWeight: 600, textDecoration: "none", letterSpacing: "-0.01em", border: "2px solid rgba(255,255,255,0.25)" }}>
+            See how it works
+          </a>
         </div>
-        <div className="hero__stats">
-          <div className="hero__stat">
-            <div className="hero__stat-label">Delegation type</div>
-            <div className="hero__stat-value">ERC-7710</div>
-          </div>
-          <div className="hero__stat">
-            <div className="hero__stat-label">Permission</div>
-            <div className="hero__stat-value">ERC-7715</div>
-          </div>
-          <div className="hero__stat">
-            <div className="hero__stat-label">Gas</div>
-            <div className="hero__stat-value">USDC · 1Shot</div>
-          </div>
-          <div className="hero__stat">
-            <div className="hero__stat-label">Sub-agents</div>
-            <div className="hero__stat-value">3 protocols</div>
-          </div>
+        {/* stats bar */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 0, marginTop: 72, borderTop: "2px solid #000" }}>
+          {[
+            { label: "Delegation type", value: "ERC-7710" },
+            { label: "Permission", value: "ERC-7715" },
+            { label: "Gas", value: "USDC · 1Shot" },
+            { label: "Sub-agents", value: "3 protocols" },
+          ].map((s, i) => (
+            <div key={s.label} style={{ padding: "22px 24px", background: "#fff", borderRight: i < 3 ? "1px solid #e0e0e0" : "none", borderBottom: "1px solid #e0e0e0" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#8a8d99", marginBottom: 8 }}>{s.label}</div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: "#000", letterSpacing: "-0.02em", fontFamily: "var(--font-space), system-ui, sans-serif" }}>{s.value}</div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -89,13 +92,13 @@ function Ticker() {
     { tag: "REBALANCE", text: "Master rebalanced 8k USDC → Perp Agent · spread +390 bps", color: "green" },
   ];
   return (
-    <section style={{ background: "var(--bg-base)", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)", padding: "16px 0", overflow: "hidden" }}>
+    <section style={{ background: "#111", borderTop: "1px solid #1f1f1f", padding: "14px 0", overflow: "hidden" }}>
       <div style={{ display: "flex", gap: 32, whiteSpace: "nowrap", animation: "ticker 60s linear infinite", width: "max-content" }}>
         {[...items, ...items, ...items].map((it, i) => (
           <div key={i} style={{ display: "inline-flex", alignItems: "center", gap: 10, fontSize: 12.5 }}>
-            <span className={`chip chip-${it.color}`}>{it.tag}</span>
-            <span style={{ color: "var(--text-secondary)" }} className="font-mono">{it.text}</span>
-            <span style={{ color: "var(--border-strong)", marginLeft: 12 }}>·</span>
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", padding: "2px 8px", border: "1px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.5)", textTransform: "uppercase" as const }}>{it.tag}</span>
+            <span style={{ color: "rgba(255,255,255,0.75)" }} className="font-mono">{it.text}</span>
+            <span style={{ color: "rgba(255,255,255,0.15)", marginLeft: 12 }}>·</span>
           </div>
         ))}
       </div>
@@ -128,7 +131,7 @@ function AgentLoop() {
         <div style={{ position: "relative", marginTop: 56, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0, border: "1px solid var(--border)", borderRadius: 0, overflow: "hidden", background: "var(--bg-elevated)" }} className="agent-loop">
           {steps.map((s, i) => (
             <div key={s.n} style={{ position: "relative", padding: "28px 26px", borderRight: (i + 1) % 3 !== 0 ? "1px solid var(--border)" : "none", borderBottom: i < 3 ? "1px solid var(--border)" : "none", background: "var(--bg-elevated)", transition: "background 0.2s" }}>
-              <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 30, height: 30, borderRadius: 0, background: "rgba(14, 217, 107, 0.10)", color: "var(--teal-text)", fontFamily: "var(--font-geist-mono)", fontSize: 12, fontWeight: 700, letterSpacing: "0.04em" }}>
+              <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 30, height: 30, borderRadius: 0, background: "rgba(0, 1, 252, 0.10)", color: "var(--teal-text)", fontFamily: "var(--font-geist-mono)", fontSize: 12, fontWeight: 700, letterSpacing: "0.04em" }}>
                 {s.n}
               </div>
               <div style={{ fontSize: 19, fontWeight: 700, marginTop: 14, letterSpacing: "-0.01em", color: "var(--text-primary)" }}>{s.title}</div>
@@ -186,7 +189,7 @@ function MetaMaskStack() {
     { name: "MetaMask Flask",     role: "Required wallet. Supports ERC-7715 advanced permissions + EIP-7702 auto-upgrade.", load: "core" },
   ];
   const loadStyle: Record<string, React.CSSProperties> = {
-    critical: { background: "rgba(14, 217, 107, 0.12)", color: "var(--teal-text)",       borderColor: "rgba(14, 217, 107, 0.32)" },
+    critical: { background: "rgba(0, 1, 252, 0.12)", color: "var(--teal-text)",       borderColor: "rgba(0, 1, 252, 0.32)" },
     unique:   { background: "rgba(37, 99, 235, 0.10)", color: "#1d4ed8",               borderColor: "rgba(37, 99, 235, 0.25)" },
     core:     { background: "rgba(0, 0, 0, 0.04)",     color: "var(--text-secondary)", borderColor: "var(--border-strong)" },
   };
@@ -230,7 +233,7 @@ function DashboardFeatures() {
     { title: "Execution log",       body: "Every agent action — collect-yield, redelegate, deposit — as an onchain receipt via 1Shot relayer. Gas in USDC.", tag: "new" },
   ];
   const tagStyle: Record<string, React.CSSProperties> = {
-    new:         { background: "rgba(14, 217, 107, 0.12)", color: "var(--teal-text)", borderColor: "rgba(14, 217, 107, 0.32)" },
+    new:         { background: "rgba(0, 1, 252, 0.12)", color: "var(--teal-text)", borderColor: "rgba(0, 1, 252, 0.32)" },
     live:        { background: "rgba(37, 99, 235, 0.10)", color: "#1d4ed8", borderColor: "rgba(37, 99, 235, 0.25)" },
     interactive: { background: "rgba(124, 58, 237, 0.10)", color: "#5b21b6", borderColor: "rgba(124, 58, 237, 0.25)" },
     demo:        { background: "rgba(217, 119, 6, 0.10)", color: "#b45309", borderColor: "rgba(217, 119, 6, 0.25)" },
@@ -289,8 +292,8 @@ function FinalCTA() {
 /* ── Section eyebrow ────────────────────────────────────────── */
 function SectionEyebrow({ children, centered = false }: { children: React.ReactNode; centered?: boolean }) {
   return (
-    <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--teal-text)", padding: "5px 12px", borderRadius: 0, background: "rgba(14, 217, 107, 0.10)", border: "1px solid rgba(14, 217, 107, 0.22)", margin: centered ? "0 auto" : undefined }}>
-      <span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--brand-green)" }} />
+    <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 10.5, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#0001FC", margin: centered ? "0 auto" : undefined }}>
+      <span style={{ display: "inline-block", width: 16, height: 1, background: "#0001FC" }} />
       {children}
     </div>
   );
