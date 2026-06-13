@@ -1,6 +1,5 @@
 import Link from "next/link";
-import HeroBackground from "@/components/HeroBackground";
-import HeaderBackground from "@/components/HeaderBackground";
+import NexusLogo from "@/components/NexusLogo";
 
 export default function Home() {
   return (
@@ -22,11 +21,15 @@ export default function Home() {
 function Nav() {
   return (
     <header style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 30, background: "rgba(255,255,255,0.97)", backdropFilter: "blur(8px)" }}>
-      <div className="landing-nav" style={{ maxWidth: 1180, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 32px" }}>
-        <Link href="/" style={{ textDecoration: "none" }}>
-          <span className="font-brand" style={{ fontSize: 22, color: "#000", lineHeight: 1, letterSpacing: "-0.03em" }}>Nexus-A2A</span>
+      <div className="landing-nav" style={{ maxWidth: 1180, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 32px" }}>
+        <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
+          <NexusLogo size={24} variant="default" />
+          <span className="font-brand" style={{ fontSize: 20, color: "#000", lineHeight: 1, letterSpacing: "-0.03em" }}>Nexus-A2A</span>
         </Link>
-        <Link href="/dashboard" className="btn-brand-outline" style={{ fontSize: 13, padding: "8px 18px" }}>Open dashboard →</Link>
+        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          <Link href="/dashboard/command" style={{ fontSize: 12.5, fontWeight: 600, color: "#0001FC", textDecoration: "none", padding: "7px 14px", border: "1px solid rgba(0,1,252,0.25)", background: "rgba(0,1,252,0.04)" }}>Command ⌘</Link>
+          <Link href="/dashboard" className="btn-brand-outline" style={{ fontSize: 13, padding: "8px 18px" }}>Open dashboard →</Link>
+        </div>
       </div>
     </header>
   );
@@ -45,34 +48,35 @@ function Hero() {
         </div>
         {/* headline */}
         <h1 style={{ fontSize: "clamp(42px, 7vw, 76px)", fontWeight: 800, lineHeight: 1.0, letterSpacing: "-0.035em", color: "#fff", fontFamily: "var(--font-space), system-ui, sans-serif", margin: 0 }}>
-          Four agents.<br />
+          Agent swarm.<br />
           One delegation.<br />
           <span style={{ color: "rgba(255,255,255,0.65)" }}>Maximum yield.</span>
         </h1>
         {/* subtitle */}
         <p style={{ fontSize: "clamp(15px, 1.8vw, 17px)", color: "rgba(255,255,255,0.6)", lineHeight: 1.65, maxWidth: 620, marginTop: 28, letterSpacing: "-0.005em" }}>
-          Nexus-A2A lets a master orchestrator agent receive a single ERC-7715 permission from your MetaMask wallet — then subdelegates via ERC-7710 to three specialized sub-agents that autonomously deploy your USDC across Aave, Uniswap, and Hyperliquid for best-in-class yield.
+          Nexus-A2A gives your orchestrator a single ERC-7715 permission — then subdelegates via ERC-7710 to specialized sub-agents that autonomously deploy your USDC across Aave, Uniswap, and Hyperliquid. No private key handoff. Type a prompt and the swarm executes.
         </p>
         {/* CTAs */}
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 40 }}>
-          <Link href="/dashboard" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "13px 26px", background: "#fff", color: "#0001FC", fontSize: 14, fontWeight: 700, textDecoration: "none", letterSpacing: "-0.01em" }}>
-            Open the live dashboard →
+          <Link href="/dashboard/command" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "13px 26px", background: "#fff", color: "#0001FC", fontSize: 14, fontWeight: 700, textDecoration: "none", letterSpacing: "-0.01em" }}>
+            Try the Command →
           </Link>
-          <a href="#how" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "13px 26px", background: "transparent", color: "rgba(255,255,255,0.7)", fontSize: 14, fontWeight: 600, textDecoration: "none", letterSpacing: "-0.01em", border: "2px solid rgba(255,255,255,0.25)" }}>
-            See how it works
-          </a>
+          <Link href="/dashboard" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "13px 26px", background: "transparent", color: "rgba(255,255,255,0.8)", fontSize: 14, fontWeight: 600, textDecoration: "none", letterSpacing: "-0.01em", border: "2px solid rgba(255,255,255,0.3)" }}>
+            Open live dashboard
+          </Link>
         </div>
         {/* stats bar */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 0, marginTop: 72, borderTop: "2px solid #000" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 0, marginTop: 72, borderTop: "2px solid #000" }}>
           {[
             { label: "Delegation type", value: "ERC-7710" },
             { label: "Permission", value: "ERC-7715" },
             { label: "Gas", value: "USDC · 1Shot" },
-            { label: "Sub-agents", value: "3 protocols" },
+            { label: "Swarm size",      value: "3 sub-agents" },
+            { label: "Command UI",      value: "Prompt → Action" },
           ].map((s, i) => (
-            <div key={s.label} style={{ padding: "22px 24px", background: "#fff", borderRight: i < 3 ? "1px solid #e0e0e0" : "none", borderBottom: "1px solid #e0e0e0" }}>
+            <div key={s.label} style={{ padding: "20px 20px", background: "#fff", borderRight: i < 4 ? "1px solid #e0e0e0" : "none", borderBottom: "1px solid #e0e0e0" }}>
               <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#8a8d99", marginBottom: 8 }}>{s.label}</div>
-              <div style={{ fontSize: 17, fontWeight: 700, color: "#000", letterSpacing: "-0.02em", fontFamily: "var(--font-space), system-ui, sans-serif" }}>{s.value}</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "#000", letterSpacing: "-0.02em", fontFamily: "var(--font-space), system-ui, sans-serif" }}>{s.value}</div>
             </div>
           ))}
         </div>
@@ -123,7 +127,7 @@ function AgentLoop() {
         <SectionEyebrow>How it works</SectionEyebrow>
         <h2 style={{ fontSize: "clamp(32px, 4vw, 44px)", lineHeight: 1.08, letterSpacing: "-0.025em", maxWidth: 720, marginTop: 12 }}>
           One permission.{" "}
-          <span className="underline-curve">Four agents, running in concert.</span>
+          <span className="underline-curve">Agent swarm, running in concert.</span>
         </h2>
         <p style={{ fontSize: 16, color: "var(--text-secondary)", marginTop: 16, maxWidth: 620, lineHeight: 1.55 }}>
           You sign once. The swarm handles the rest — deploying, earning, and rebalancing across protocols autonomously.

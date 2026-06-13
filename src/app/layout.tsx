@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import Web3Provider from "@/components/providers/Web3Provider";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -24,9 +25,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nexus-A2A — DeFi Yield Swarm",
+  title: "Nexus-A2A — Agent Swarm for DeFi Yield",
   description:
-    "Four agents. One delegation. Maximum yield. Master orchestrator redelegates via ERC-7710 to Aave, Uniswap, and Hyperliquid sub-agents — autonomously maximising your USDC yield.",
+    "Agent swarm. One delegation. Maximum yield. Orchestrator redelegates via ERC-7710 to specialized sub-agents on Base Sepolia — autonomously maximising your USDC yield.",
 };
 
 export default function RootLayout({
@@ -36,7 +37,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${jakarta.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
-      <body>{children}</body>
+      <body>
+        <Web3Provider>
+          {children}
+        </Web3Provider>
+      </body>
     </html>
   );
 }

@@ -1,96 +1,124 @@
-# Nexus-A2A — DeFi Yield Swarm
+# Nexus-A2A
 
-> Four agents. One delegation. Maximum yield.
+> Agent swarm. One delegation. Maximum yield.
 
-Nexus-A2A is an autonomous DeFi yield optimizer built on MetaMask Smart Accounts. A master orchestrator agent receives a single ERC-7715 permission from the user's wallet, then subdelegates via ERC-7710 to three specialized sub-agents that autonomously deploy USDC across Aave v3, Uniswap V3, and Hyperliquid — rebalancing toward the highest APY on every tick.
-
-**Tracks targeted:** Best A2A Coordination · Best Agent ($6,000 potential)
-
----
-
-## The problem it solves
-
-Traditional DeFi yield requires the user to:
-1. Manually approve each protocol
-2. Periodically rebalance across protocols
-3. Pay ETH gas for every action
-
-Nexus-A2A removes all three. You sign once. The swarm handles the rest.
+**Nexus-A2A** is an autonomous DeFi yield optimizer where an orchestrator agent receives a single ERC-7715 permission from your MetaMask wallet, then subdelegates to a swarm of specialized sub-agents that autonomously deploy USDC across Aave, Uniswap, and Hyperliquid — rebalancing toward the best APY every tick. Type a prompt. The swarm executes.
 
 ---
 
 ## Architecture
 
 ```
-[User — MetaMask Flask]
-         │
-         │  ERC-7715 grant
-         │  "spend up to 500k USDC/week for yield"
-         ▼
-[Master Orchestrator] ─────────────────────────────
-         │                                         │
-         │ ERC-7710 subdelegation                  │ ERC-7710 subdelegation
-         │ cap: 200k USDC                          │ cap: 150k USDC
-         ▼                                         ▼
-   [Aave Agent]                            [Uniswap LP Agent]
-   Aave v3 · Base                          Uniswap V3 · Ethereum
-   USDC supply · ~5.2% APY                 USDC/ETH LP · ~8.4% APY
-                           │
-                           │ ERC-7710 subdelegation
-                           │ cap: 150k USDC
-                           ▼
-                    [Perp Funding Agent]
-                    Hyperliquid · BTC perp
-                    Funding rate · ~11.2% APY
+ ┌──────────────────────────────────────────────────────────────────┐
+ │  User Wallet  (MetaMask Flask + Smart Account EIP-7702)          │
+ └────────────────────────────┬─────────────────────────────────────┘
+                              │
+                              │  ERC-7715 permission grant
+                              │  "spend up to 500k USDC/week"
+                              ▼
+ ┌──────────────────────────────────────────────────────────────────┐
+ │                     Orchestrator Agent                           │
+ │              (receives ERC-7715 · issues ERC-7710)               │
+ └─────────┬──────────────────┬──────────────────┬─────────────────┘
+           │                  │                  │
+           │ ERC-7710         │ ERC-7710         │ ERC-7710
+           │ cap 200k USDC    │ cap 150k USDC    │ cap 150k USDC
+           ▼                  ▼                  ▼
+ ┌─────────────────┐ ┌────────────────┐ ┌─────────────────────┐
+ │   Aave Agent    │ │ Uniswap LP     │ │   Perp Agent        │
+ │  USDC supply   │ │ USDC/ETH LP    │ │  BTC funding rate   │
+ │  ~5.2% APY     │ │ ~8.4% APY      │ │  ~11.2% APY         │
+ └────────┬────────┘ └───────┬────────┘ └──────────┬──────────┘
+          │                  │                      │
+          └──────────────────┴──────────────────────┘
+                             │
+                     ┌───────▼────────┐
+                     │  1Shot Relayer │  ← gas paid in USDC
+                     │  ERC-7710 exec │    no ETH required
+                     └───────┬────────┘
+                             │
+                     ┌───────▼────────┐
+                     │  Base Sepolia  │
+                     │  on-chain txs  │
+                     └────────────────┘
 ```
 
-Every agent action is relayed by **1Shot** — gas paid in USDC, no ETH required.
+**Rebalancing loop (every 9 s in autopilot):**
+
+```
+  ┌─ Fetch APY ──────────────────────────────────────────────────┐
+  │  DeFiLlama: Aave USDC APY, Uniswap USDC/ETH APY             │
+  │  Hyperliquid: BTC perp funding rate (annualized)             │
+  └──────────────────────────────────────────────────────────────┘
+       ↓ compare weighted APY across agents
+  ┌─ Decide ─────────────────────────────────────────────────────┐
+  │  spread > 100 bps → redelegate 5–15k USDC from bottom → top  │
+  │  all agents → collect-yield (1 day's worth per tick)         │
+  └──────────────────────────────────────────────────────────────┘
+       ↓ execute via 1Shot (USDC gas)
+  ┌─ Record ─────────────────────────────────────────────────────┐
+  │  every action → execution log (agentName · protocol · txHash)│
+  │  portfolio + KPIs update live                                │
+  └──────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## How redelegation works (A2A track requirement)
+## Prompt → Action (key feature)
 
-ERC-7710 lets the master agent issue signed on-chain subdelegations to sub-agents. Each delegation:
-- Has a **cap** (max USDC the sub-agent can deploy)
-- Has **caveats** (which protocol, which token, which action)
-- Is **revocable** by the user at any time
-- Can be **rebalanced** — master redelegates from underperformer to leader
+Type in plain English. The swarm parses your intent and prepares a confirmed on-chain action:
 
-This is trustless A2A coordination. The sub-agents never need the user's key.
+```
+  You: "Deploy 500 USDC to best yield"
+       ↓
+  Swarm: parses intent → finds top APY agent → shows action preview
+       ↓
+  Confirm in MetaMask → 1Shot relay → on-chain tx on Base Sepolia
+```
 
----
-
-## Rebalancing logic
-
-Every swarm tick:
-1. Fetch live APY from DeFiLlama (Aave, Uniswap) + Hyperliquid (funding rates)
-2. Compare weighted APY across agents
-3. If the spread between best and worst exceeds 100 bps:
-   - Master redelegates 5–15k USDC from underperformer to leader
-   - New delegation caps are set on-chain via ERC-7710
-4. All agents collect yield (1 day's worth per tick)
-5. 1Shot relayer settles all transactions in USDC
+Examples:
+- `Deploy 100 USDC to Aave`
+- `Show my portfolio status`
+- `Rebalance from Aave to Uniswap`
+- `Send 10 USDC to 0x1234…`
+- `Withdraw 50 USDC from Aave`
 
 ---
 
-## Live data sources (public, no auth)
+## Wallet Connect (Base Sepolia)
 
-| Source      | Endpoint | What it provides |
-|---|---|---|
-| DeFiLlama   | `yields.llama.fi/pools` | Aave v3 USDC APY · Uniswap V3 USDC/ETH APY |
-| Hyperliquid | `api.hyperliquid.xyz/info` | BTC perpetual funding rate (annualized) |
+Connect your MetaMask wallet directly from the sidebar:
+- Displays your USDC balance on Base Sepolia
+- ERC-7715 permission flow links to your connected account
+- USDC contract: `0x036CbD53842c5426634e7929541eC2318f3dCF7e`
+
+---
+
+## What makes it different
+
+| Feature | Nexus-A2A |
+|---|---|
+| No private key handoff | ERC-7715 scoped permission only |
+| Gas in USDC | 1Shot relayer — no ETH needed |
+| Prompt → Action | Type intent, swarm executes |
+| Live delegation flow | Animated A2A capital flow visualization |
+| Rebalances automatically | Every 9 s — follows live APY |
+| Wallet-native | MetaMask sidebar connect + USDC balance |
 
 ---
 
 ## Tech stack
 
-- **Next.js 16** · TypeScript · Tailwind 4 · App Router
-- **@metamask/smart-accounts-kit** — EIP-7710 + ERC-7715
-- **viem** — smart account client + bundler
-- **1Shot API** — permissionless relayer, gas in USDC
-- **Venice AI** — market intelligence for rebalance decisions
-- **x402 protocol** — agent-to-agent micropayments for AI queries
-- DeFiLlama yields API · Hyperliquid info API
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 16 · TypeScript · Tailwind 4 |
+| Wallet | wagmi v2 · viem · MetaMask injected |
+| Smart accounts | EIP-7702 · ERC-7710 · ERC-7715 |
+| Relayer | 1Shot API — USDC gas, private relay |
+| AI | Venice AI — market intelligence |
+| Payments | x402 — agent-to-agent micropayments |
+| Data | DeFiLlama yields API · Hyperliquid info |
+| Chain | Base Sepolia (chain ID 84532) |
 
 ---
 
@@ -98,56 +126,69 @@ Every swarm tick:
 
 | Page | What it shows |
 |---|---|
-| `/dashboard` | Live KPIs, agent tasks, portfolio, execution log, agent registry |
-| `/dashboard/agents` | Full agent registry with delegation details |
-| `/dashboard/delegations` | Live delegation tree (master → sub-agents) |
-| `/dashboard/executions` | All onchain actions via 1Shot |
-| `/dashboard/portfolio` | Capital deployed per agent, weekly yield projection |
-| `/dashboard/ask` | Ask the swarm anything in plain English |
+| `/dashboard` | Live KPIs · delegation flow animation · agent tasks · executions |
+| `/dashboard/command` | **Prompt → Action** chat interface |
+| `/dashboard/agents` | Agent registry with delegation details |
+| `/dashboard/delegations` | ERC-7710 delegation tree |
+| `/dashboard/executions` | All on-chain actions via 1Shot |
+| `/dashboard/portfolio` | Capital deployed per agent · weekly yield |
+| `/dashboard/ask` | Ask the swarm in plain English |
 
 ---
 
-## API surface
+## API
 
 | Endpoint | Returns |
 |---|---|
-| `GET /api/kpis` | Swarm KPIs (deployed, avg APY, yield earned, delegations active) |
+| `GET /api/kpis` | Swarm KPIs |
 | `GET /api/opportunities` | Active yield tasks per agent |
-| `GET /api/executions` | Agent execution log (collect-yield, redelegate, deposit) |
-| `GET /api/treasury` | Portfolio state (total, deployed, idle, per-agent) |
-| `GET /api/venues` | Agent registry + delegation list |
-| `POST /api/scan` | Trigger one swarm tick (fetch APY → decide → collect yield) |
+| `GET /api/executions` | Execution log |
+| `GET /api/treasury` | Portfolio state |
+| `GET /api/venues` | Agent registry + delegations |
+| `POST /api/scan` | Trigger one swarm tick |
+| `POST /api/command` | Parse prompt → structured action |
 
 ---
+
+## Live demo
+
+**[https://nexus-a2a.vercel.app](https://nexus-a2a.vercel.app)**
+
+| Path | Description |
+|---|---|
+| `/` | Landing page |
+| `/dashboard` | Live swarm dashboard |
+| `/dashboard/command` | Prompt → Action interface |
 
 ## Run locally
 
 ```bash
-git clone https://github.com/ayushsingh82/Argo.git
-cd Argo
+git clone https://github.com/ayushsingh82/nexus-a2a.git
+cd nexus-a2a
 npm install
 npm run dev
 ```
 
-Open `http://localhost:3000` for the landing page, `/dashboard` for the live swarm, `/pitch` for the deck.
-
 ---
 
-## Demo flow (90 seconds)
+## Demo (90 seconds)
 
-1. Show MetaMask Flask → ERC-7715 permission grant (user approves once)
-2. Dashboard loads — Agent Registry shows Master + 3 sub-agents with live APY
-3. Hit **"Run swarm cycle"** → delegation tree animates as master redelegates
-4. Execution log shows: collect-yield × 3 + redelegate (if triggered)
-5. Portfolio panel updates — deployed USDC and yield earned increase
-6. Autopilot ON — watch the swarm run continuously on real DeFiLlama + Hyperliquid data
+```
+1. Connect MetaMask (sidebar) → Base Sepolia · USDC balance shows
+2. Dashboard loads → delegation flow animation with capital flowing
+3. "Run swarm cycle" → agents collect yield, rebalance fires if APY spreads
+4. Open /dashboard/command → type "Deploy 100 USDC to best yield"
+5. Action preview: agent name · APY · estimated gas in USDC
+6. Confirm in MetaMask → 1Shot relay → tx hash in execution log
+7. Autopilot ON → watch continuous rebalancing on live DeFiLlama + Hyperliquid
+```
 
 ---
 
 ## Hackathon tracks
 
-| Track | Requirement | How Nexus-A2A qualifies |
-|---|---|---|
-| **Best A2A Coordination** | Must use redelegation | Master → 3 sub-agents via ERC-7710. Caps adjust every tick based on live APY. |
-| **Best Agent** | MetaMask Smart Accounts in main flow | ERC-7715 permission grant is step 1. Every agent action uses the smart account. |
-| **Best Use of 1Shot** | Relay ERC-7710 txs through 1Shot mainnet | All agent transactions relayed via 1Shot — gas in USDC. |
+| Track | How Nexus-A2A qualifies |
+|---|---|
+| Best A2A Coordination | Orchestrator → swarm via ERC-7710. Caps rebalance every tick on live APY. |
+| Best Agent | ERC-7715 permission is step 1. Every agent action uses the smart account. |
+| Best Use of 1Shot | All agent txs relayed via 1Shot — USDC gas, private relay. |

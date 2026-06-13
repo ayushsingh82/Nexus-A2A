@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import CaptureCycle from "@/components/CaptureCycle";
 import PnlChart from "@/components/PnlChart";
 import StatusDot from "@/components/StatusDot";
+import DelegationFlow from "@/components/DelegationFlow";
 import { timeAgo, useLiveData } from "@/lib/useLiveData";
 import type {
   Agent,
@@ -75,9 +76,35 @@ export default function LiveDashboard({ initial }: { initial: DashboardSnapshot 
 
       <KpiRow kpis={kpis} />
 
-      <div className="dash-2col" style={{ display: "grid", gridTemplateColumns: "1.55fr 1fr", gap: 16, marginTop: 18 }}>
-        <AgentTasksPanel opportunities={opportunities} status={oppsQ.status} updatedAt={oppsQ.updatedAt} />
+      {/* Delegation flow animation — funds flowing from orchestrator to agents */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1.4fr", gap: 16, marginTop: 18 }} className="dash-2col">
+        <Panel title="Delegation Flow" subtitle="ERC-7710 capital flowing · orchestrator → swarm" status={agentsQ.status} updatedAt={agentsQ.updatedAt} source="chain">
+          <DelegationFlow agents={agents} delegations={delegations} running={autopilot} />
+        </Panel>
         <PortfolioPanel portfolio={portfolio} status={portQ.status} updatedAt={portQ.updatedAt} />
+      </div>
+
+      <div className="dash-2col" style={{ display: "grid", gridTemplateColumns: "1.55fr 1fr", gap: 16, marginTop: 16 }}>
+        <AgentTasksPanel opportunities={opportunities} status={oppsQ.status} updatedAt={oppsQ.updatedAt} />
+        <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+          <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
+            <div className="section-title">Command the swarm</div>
+            <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>Type a prompt to deploy, rebalance, or query</div>
+          </div>
+          <div style={{ padding: "16px 18px" }}>
+            <a href="/dashboard/command" style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", background: "rgba(0,1,252,0.05)", border: "1px solid rgba(0,1,252,0.15)", textDecoration: "none", color: "#0001FC", fontSize: 13, fontWeight: 600 }}>
+              <span style={{ fontSize: 18 }}>⌘</span>
+              Open Command →
+            </a>
+            <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 6 }}>
+              {["Deploy 100 USDC to best yield", "Show portfolio status", "Rebalance from Aave to Uniswap"].map((s) => (
+                <a key={s} href={`/dashboard/command`} style={{ padding: "7px 10px", background: "var(--bg-surface)", border: "1px solid var(--border)", fontSize: 11.5, color: "var(--text-secondary)", textDecoration: "none", display: "block" }}>
+                  {s}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="dash-2col" style={{ display: "grid", gridTemplateColumns: "1.55fr 1fr", gap: 16, marginTop: 16 }}>
