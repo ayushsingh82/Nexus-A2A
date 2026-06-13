@@ -17,31 +17,11 @@ export default function Sidebar() {
   return (
     <aside className="app-sidebar">
       <Link href="/" className="sidebar-logo" style={{ textDecoration: "none", display: "block" }}>
-        <div className="flex items-center gap-3">
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 0,
-              background: "linear-gradient(145deg, #0ED96B 0%, #0BC460 100%)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-              boxShadow: "0 2px 6px rgba(14, 217, 107, 0.22)",
-              fontSize: 18,
-            }}
-          >
-            ⬡
-          </div>
-          <div>
-            <div className="font-brand" style={{ fontSize: 22, color: "var(--text-primary)", lineHeight: 1, letterSpacing: "-0.03em" }}>
-              Nexus-A2A
-            </div>
-            <div style={{ fontSize: 10, color: "var(--text-muted)", letterSpacing: "0.08em", textTransform: "uppercase", marginTop: 4, fontWeight: 600 }}>
-              yield swarm
-            </div>
-          </div>
+        <div className="font-brand" style={{ fontSize: 20, color: "var(--text-primary)", lineHeight: 1, letterSpacing: "-0.03em" }}>
+          Nexus-A2A
+        </div>
+        <div style={{ fontSize: 10, color: "var(--text-muted)", letterSpacing: "0.08em", textTransform: "uppercase", marginTop: 5, fontWeight: 600 }}>
+          yield swarm
         </div>
       </Link>
 

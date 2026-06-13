@@ -115,7 +115,7 @@ function ControlBar({ kpis, agentCount, delegationCount, autopilot, onToggleAuto
 }) {
   const lastSwarmAgo = kpis.lastSwarmAtMs ? timeAgo(kpis.lastSwarmAtMs) : "never";
   return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", padding: "14px 18px", border: "1px solid var(--border)", borderRadius: 0, background: "linear-gradient(180deg, rgba(1,183,62,0.04) 0%, var(--bg-elevated) 100%)", marginBottom: 18 }}>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", padding: "14px 18px", border: "1px solid var(--border)", borderRadius: 0, background: "linear-gradient(180deg, rgba(0,1,252,0.04) 0%, var(--bg-elevated) 100%)", marginBottom: 18 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
         <span className="live-pill">
           <span className="live-pill__dot" />
@@ -167,7 +167,7 @@ function KpiRow({ kpis }: { kpis: SwarmKpis }) {
   return (
     <div className="grid-cols-4">
       {tiles.map((t) => (
-        <div key={t.label} className="kpi-card" style={{ position: "relative", overflow: "hidden", borderColor: t.accent ? "rgba(1, 183, 62, 0.18)" : "var(--border)" }}>
+        <div key={t.label} className="kpi-card" style={{ position: "relative", overflow: "hidden", borderColor: t.accent ? "rgba(0, 1, 252, 0.18)" : "var(--border)" }}>
           <div className="kpi-label">{t.label}</div>
           <div className="kpi-value" style={{ color: t.accent ? "var(--teal-text)" : "var(--text-primary)" }}>{t.value}</div>
           <div className="kpi-hint">{t.hint}</div>
