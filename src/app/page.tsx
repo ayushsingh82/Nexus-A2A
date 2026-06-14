@@ -17,78 +17,6 @@ export default function Home() {
   );
 }
 
-/* ── Protocol flow visual for nav ───────────────────────────── */
-function NavProtocolDots() {
-  const protocols = [
-    { label: "Aave",    color: "#9333ea", img: "/logos/aave.svg" },
-    { label: "Uniswap", color: "#ff007a", img: "/logos/uniswap.svg" },
-    { label: "Lido",    color: "#00a3ff", img: "/logos/lido.svg" },
-  ];
-  const W = 188;
-  const H = 36;
-  const mmX = W - 18;
-  const mmY = H / 2;
-  const nodeYs = [8, H / 2, H - 8];
-
-  return (
-    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} fill="none" style={{ display: "block", flexShrink: 0 }}>
-      <style>{`
-        @keyframes nav-pulse { 0%,100%{opacity:0.25} 50%{opacity:0.7} }
-        @keyframes nav-travel {
-          0%   { stroke-dashoffset: 32; opacity: 0; }
-          10%  { opacity: 1; }
-          90%  { opacity: 1; }
-          100% { stroke-dashoffset: 0; opacity: 0; }
-        }
-      `}</style>
-      <defs>
-        {protocols.map((p) => (
-          <clipPath key={p.label} id={`nav-clip-${p.label}`}>
-            <circle cx="0" cy="0" r="7" />
-          </clipPath>
-        ))}
-        <clipPath id="nav-clip-mm">
-          <circle cx="0" cy="0" r="10" />
-        </clipPath>
-      </defs>
-
-      {/* Lines from protocol dots to MetaMask hub */}
-      {protocols.map((p, i) => {
-        const x1 = 16, y1 = nodeYs[i];
-        const delay = `${i * 0.5}s`;
-        return (
-          <g key={p.label}>
-            <line x1={x1} y1={y1} x2={mmX} y2={mmY} stroke={p.color} strokeWidth="1" strokeOpacity="0.2" />
-            <line
-              x1={x1} y1={y1} x2={mmX} y2={mmY}
-              stroke={p.color} strokeWidth="1.5"
-              strokeDasharray="4 28"
-              strokeDashoffset="32"
-              strokeLinecap="round"
-              style={{ animation: `nav-travel 2s ${delay} ease-in-out infinite` }}
-            />
-          </g>
-        );
-      })}
-
-      {/* Protocol nodes */}
-      {protocols.map((p, i) => (
-        <g key={p.label} transform={`translate(16, ${nodeYs[i]})`}>
-          <circle r="8" fill="white" stroke={p.color} strokeWidth="1.5" />
-          <image href={p.img} x="-7" y="-7" width="14" height="14" clipPath={`url(#nav-clip-${p.label})`} preserveAspectRatio="xMidYMid slice" />
-        </g>
-      ))}
-
-      {/* MetaMask hub */}
-      <g transform={`translate(${mmX}, ${mmY})`}>
-        <circle r="13" fill="#f6851b" opacity="0.12" />
-        <circle r="11" fill="white" stroke="#f6851b" strokeWidth="1.5" />
-        <image href="/logos/metamask.svg" x="-8" y="-8" width="16" height="16" clipPath="url(#nav-clip-mm)" preserveAspectRatio="xMidYMid meet" />
-      </g>
-    </svg>
-  );
-}
-
 /* ── Nav ────────────────────────────────────────────────────── */
 function Nav() {
   return (
@@ -98,8 +26,7 @@ function Nav() {
           <NexusLogo size={24} variant="default" />
           <span className="font-brand" style={{ fontSize: 20, color: "#000", lineHeight: 1, letterSpacing: "-0.03em" }}>Nexus-A2A</span>
         </Link>
-        <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
-          <NavProtocolDots />
+        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
           <Link href="/dashboard/command" style={{ fontSize: 12.5, fontWeight: 600, color: "#0001FC", textDecoration: "none", padding: "7px 14px", border: "1px solid rgba(0,1,252,0.25)", background: "rgba(0,1,252,0.04)" }}>Command ⌘</Link>
           <Link href="/dashboard" className="btn-brand-outline" style={{ fontSize: 13, padding: "8px 18px" }}>Open dashboard →</Link>
         </div>
@@ -108,49 +35,109 @@ function Nav() {
   );
 }
 
+/* ── Orbit visual ───────────────────────────────────────────── */
+function ProtocolOrbit() {
+  const protocols = [
+    { label: "Aave",        img: "https://www.datocms-assets.com/166214/1758974929-1740700991-78b3ef2e096b-aave_logo.png?auto=format&fit=max&w=1200", color: "#9333ea", deg: 0 },
+    { label: "Uniswap",     img: "/logos/uniswap.svg",    color: "#ff007a", deg: 120 },
+    { label: "Hyperliquid", img: "https://play-lh.googleusercontent.com/u-5f4DodeNbu-GykUJJ2fxVoLqLWaCwbTebu7ecgsXFmXzLOCwX_2C3ilxzcrfZFBUOMm8m8G0gILwn66XwvY3A=w240-h480-rw", color: "#00d4aa", deg: 240 },
+  ];
+
+  return (
+    <div style={{ position: "relative", width: 420, height: 420, flexShrink: 0 }}>
+      <style>{`
+        @keyframes orbit-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes orbit-counter { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+        @keyframes mm-pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.04);} }
+        @keyframes ring-spin { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+      `}</style>
+
+      {/* Outer dashed ring */}
+      <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "1.5px dashed rgba(255,255,255,0.15)", animation: "ring-spin 40s linear infinite" }} />
+      {/* Inner dashed ring */}
+      <div style={{ position: "absolute", inset: 40, borderRadius: "50%", border: "1px dashed rgba(255,255,255,0.08)" }} />
+
+      {/* Orbiting container — spins 360° */}
+      <div style={{ position: "absolute", inset: 0, borderRadius: "50%", animation: "orbit-spin 10s linear infinite" }}>
+        {protocols.map((p) => (
+          <div
+            key={p.label}
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              width: 72,
+              height: 72,
+              marginTop: -36,
+              marginLeft: -36,
+              transform: `rotate(${p.deg}deg) translateX(160px)`,
+            }}
+          >
+            {/* Counter-rotate so the logo stays upright */}
+            <div style={{ width: "100%", height: "100%", animation: "orbit-counter 10s linear infinite", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ width: 72, height: 72, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: `2px solid ${p.color}55`, backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+                <img src={p.img} alt={p.label} style={{ width: 48, height: 48, objectFit: "contain" }} />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* MetaMask center — big */}
+      <div style={{ position: "absolute", top: "50%", left: "50%", width: 160, height: 160, marginTop: -80, marginLeft: -80, borderRadius: "50%", background: "rgba(255,255,255,0.10)", border: "2px solid rgba(246,133,27,0.5)", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "mm-pulse 4s ease-in-out infinite" }}>
+        <img src="/logos/metamask.svg" alt="MetaMask" style={{ width: 110, height: 110, objectFit: "contain" }} />
+      </div>
+    </div>
+  );
+}
+
 /* ── Hero ───────────────────────────────────────────────────── */
 function Hero() {
   return (
-    <section style={{ background: "#0001FC", minHeight: "92dvh", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "calc(64px + 72px)", paddingBottom: 96, paddingLeft: 32, paddingRight: 32, position: "relative", overflow: "hidden" }}>
-      {/* subtle depth overlay */}
+    <section style={{ background: "#0001FC", minHeight: "92dvh", display: "flex", alignItems: "center", paddingTop: "calc(64px + 40px)", paddingBottom: 72, paddingLeft: 32, paddingRight: 32, position: "relative", overflow: "hidden" }}>
       <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.07) 0%, transparent 60%)", pointerEvents: "none" }} />
-      <div style={{ maxWidth: 900, width: "100%", position: "relative", zIndex: 1 }}>
-        {/* eyebrow */}
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 10, fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#fff", background: "#000", border: "1px solid #b0b3be", padding: "6px 14px", marginBottom: 28 }}>
-          DeFi Yield Swarm · ERC-7710 · MetaMask Smart Accounts
+      <div style={{ maxWidth: 1180, width: "100%", margin: "0 auto", position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 48, flexWrap: "wrap" }}>
+
+        {/* LEFT — text content */}
+        <div style={{ flex: "1 1 420px", maxWidth: 560 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 10, fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#fff", background: "#000", border: "1px solid #333", padding: "5px 12px", marginBottom: 22 }}>
+            ERC-7710 · ERC-7715 · MetaMask Smart Accounts
+          </div>
+          <h1 style={{ fontSize: "clamp(34px, 5vw, 60px)", fontWeight: 800, lineHeight: 1.0, letterSpacing: "-0.035em", color: "#fff", fontFamily: "var(--font-space), system-ui, sans-serif", margin: 0 }}>
+            Agent swarm.<br />
+            One delegation.<br />
+            <span style={{ color: "rgba(255,255,255,0.55)" }}>Maximum yield.</span>
+          </h1>
+          <p style={{ fontSize: "clamp(13px, 1.4vw, 15px)", color: "rgba(255,255,255,0.6)", lineHeight: 1.65, marginTop: 22, letterSpacing: "-0.005em" }}>
+            Nexus-A2A gives your orchestrator a single ERC-7715 permission — then subdelegates via ERC-7710 to specialized sub-agents that autonomously deploy your USDC across Aave, Uniswap, and Hyperliquid. No private key handoff. Type a prompt and the swarm executes.
+          </p>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 32 }}>
+            <Link href="/dashboard/command" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "11px 22px", background: "#fff", color: "#0001FC", fontSize: 13, fontWeight: 700, textDecoration: "none", letterSpacing: "-0.01em" }}>
+              Open Command →
+            </Link>
+            <Link href="/dashboard" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "11px 22px", background: "transparent", color: "rgba(255,255,255,0.8)", fontSize: 13, fontWeight: 600, textDecoration: "none", letterSpacing: "-0.01em", border: "2px solid rgba(255,255,255,0.3)" }}>
+              Open dashboard
+            </Link>
+          </div>
+          {/* stats bar */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 0, marginTop: 52, borderTop: "2px solid #000" }}>
+            {[
+              { label: "Delegation type", value: "ERC-7710" },
+              { label: "Permission",      value: "ERC-7715" },
+              { label: "Gas",             value: "USDC · 1Shot" },
+              { label: "Command UI",      value: "Prompt → Action" },
+            ].map((s, i) => (
+              <div key={s.label} style={{ padding: "14px 16px", background: "#fff", borderRight: i < 3 ? "1px solid #e0e0e0" : "none" }}>
+                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#8a8d99", marginBottom: 6 }}>{s.label}</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#000", letterSpacing: "-0.02em", fontFamily: "var(--font-space), system-ui, sans-serif" }}>{s.value}</div>
+              </div>
+            ))}
+          </div>
         </div>
-        {/* headline */}
-        <h1 style={{ fontSize: "clamp(42px, 7vw, 76px)", fontWeight: 800, lineHeight: 1.0, letterSpacing: "-0.035em", color: "#fff", fontFamily: "var(--font-space), system-ui, sans-serif", margin: 0 }}>
-          Agent swarm.<br />
-          One delegation.<br />
-          <span style={{ color: "rgba(255,255,255,0.65)" }}>Maximum yield.</span>
-        </h1>
-        {/* subtitle */}
-        <p style={{ fontSize: "clamp(15px, 1.8vw, 17px)", color: "rgba(255,255,255,0.6)", lineHeight: 1.65, maxWidth: 620, marginTop: 28, letterSpacing: "-0.005em" }}>
-          Nexus-A2A gives your orchestrator a single ERC-7715 permission — then subdelegates via ERC-7710 to specialized sub-agents that autonomously deploy your USDC across Aave, Uniswap, and Hyperliquid. No private key handoff. Type a prompt and the swarm executes.
-        </p>
-        {/* CTAs */}
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 40 }}>
-          <Link href="/dashboard/command" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "13px 26px", background: "#fff", color: "#0001FC", fontSize: 14, fontWeight: 700, textDecoration: "none", letterSpacing: "-0.01em" }}>
-            Try the Command →
-          </Link>
-          <Link href="/dashboard" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "13px 26px", background: "transparent", color: "rgba(255,255,255,0.8)", fontSize: 14, fontWeight: 600, textDecoration: "none", letterSpacing: "-0.01em", border: "2px solid rgba(255,255,255,0.3)" }}>
-            Open live dashboard
-          </Link>
-        </div>
-        {/* stats bar */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 0, marginTop: 72, borderTop: "2px solid #000" }}>
-          {[
-            { label: "Delegation type", value: "ERC-7710" },
-            { label: "Permission", value: "ERC-7715" },
-            { label: "Gas", value: "USDC · 1Shot" },
-            { label: "Command UI", value: "Prompt → Action" },
-          ].map((s, i) => (
-            <div key={s.label} style={{ padding: "20px 20px", background: "#fff", borderRight: i < 3 ? "1px solid #e0e0e0" : "none", borderBottom: "1px solid #e0e0e0" }}>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#8a8d99", marginBottom: 8 }}>{s.label}</div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: "#000", letterSpacing: "-0.02em", fontFamily: "var(--font-space), system-ui, sans-serif" }}>{s.value}</div>
-            </div>
-          ))}
+
+        {/* RIGHT — orbiting protocols around MetaMask */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flex: "0 0 auto" }}>
+          <ProtocolOrbit />
         </div>
       </div>
     </section>
@@ -303,7 +290,7 @@ function DashboardFeatures() {
   const features = [
     { title: "Agent Registry",      body: "Live status for all 4 agents — cap, APY, deployed USDC, and yield earned. See each delegation in its own card.", tag: "live" },
     { title: "Delegation Tree",     body: "Visual tree showing master → sub-agents with ERC-7710 permission arrows. Each node shows cap used vs available.", tag: "interactive" },
-    { title: "Run swarm cycle",     body: "One click fires a real swarm tick: fetch live APY → master decides → redelegation if needed → agents collect yield → 1Shot relays gas.", tag: "demo" },
+    { title: "Run swarm cycle",     body: "One click fires a real swarm tick: fetch live APY → master decides → redelegation if needed → agents collect yield → 1Shot relays gas.", tag: "live" },
     { title: "Autopilot",          body: "Continuous swarm on a 9-second loop. Live APY from DeFiLlama + Hyperliquid. Per-panel status dots show data age.", tag: "live" },
     { title: "Portfolio panel",     body: "Total USDC deployed across all protocols with per-agent breakdown and estimated weekly yield projection.", tag: "live" },
     { title: "Execution log",       body: "Every agent action — collect-yield, redelegate, deposit — as an onchain receipt via 1Shot relayer. Gas in USDC.", tag: "new" },
@@ -312,7 +299,6 @@ function DashboardFeatures() {
     new:         { background: "rgba(0, 1, 252, 0.12)", color: "var(--teal-text)", borderColor: "rgba(0, 1, 252, 0.32)" },
     live:        { background: "rgba(37, 99, 235, 0.10)", color: "#1d4ed8", borderColor: "rgba(37, 99, 235, 0.25)" },
     interactive: { background: "rgba(124, 58, 237, 0.10)", color: "#5b21b6", borderColor: "rgba(124, 58, 237, 0.25)" },
-    demo:        { background: "rgba(217, 119, 6, 0.10)", color: "#b45309", borderColor: "rgba(217, 119, 6, 0.25)" },
   };
   return (
     <section id="dashboard" className="landing-section" style={{ background: "var(--bg-surface)", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)", padding: "96px 28px" }}>

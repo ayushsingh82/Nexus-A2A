@@ -20,7 +20,7 @@ type Particle = {
 };
 
 const PROTOCOL_IMAGES: Record<string, string> = {
-  "aave":       "/logos/aave.svg",
+  "aave":       "https://www.datocms-assets.com/166214/1758974929-1740700991-78b3ef2e096b-aave_logo.png?auto=format&fit=max&w=1200",
   "uniswap-lp": "/logos/uniswap.svg",
   "lido":       "/logos/lido.svg",
 };

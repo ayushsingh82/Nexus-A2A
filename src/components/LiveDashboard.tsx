@@ -1,7 +1,17 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import CaptureCycle from "@/components/CaptureCycle";
+
+const PROTOCOL_LOGO: Record<string, string> = {
+  master:         "/logos/metamask.svg",
+  aave:           "https://www.datocms-assets.com/166214/1758974929-1740700991-78b3ef2e096b-aave_logo.png?auto=format&fit=max&w=1200",
+  "uniswap-lp":   "/logos/uniswap.svg",
+  uniswap:        "/logos/uniswap.svg",
+  perp:           "https://play-lh.googleusercontent.com/u-5f4DodeNbu-GykUJJ2fxVoLqLWaCwbTebu7ecgsXFmXzLOCwX_2C3ilxzcrfZFBUOMm8m8G0gILwn66XwvY3A=w240-h480-rw",
+  "perp-funding": "https://play-lh.googleusercontent.com/u-5f4DodeNbu-GykUJJ2fxVoLqLWaCwbTebu7ecgsXFmXzLOCwX_2C3ilxzcrfZFBUOMm8m8G0gILwn66XwvY3A=w240-h480-rw",
+};
 import PnlChart from "@/components/PnlChart";
 import StatusDot from "@/components/StatusDot";
 import DelegationFlow from "@/components/DelegationFlow";
@@ -233,12 +243,20 @@ function AgentTasksPanel({ opportunities, status, updatedAt }: { opportunities: 
 
 function TaskRow({ opp }: { opp: YieldOpportunity }) {
   const apyColor = opp.apyBps >= 1000 ? "var(--teal-text)" : "var(--text-primary)";
+  const logo = PROTOCOL_LOGO[opp.agentId] ?? "";
   return (
     <li style={{ padding: "14px 20px", borderBottom: "1px solid var(--border)", display: "grid", gridTemplateColumns: "1fr auto auto auto", gap: 16, alignItems: "center" }}>
-      <div>
-        <div style={{ fontWeight: 600, fontSize: 13.5, color: "var(--text-primary)" }}>{opp.agentName}</div>
-        <div style={{ fontSize: 11.5, color: "var(--text-muted)", marginTop: 3, fontFamily: "var(--font-geist-mono)" }}>
-          {opp.protocol} · {opp.asset}
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        {logo && (
+          <div style={{ width: 28, height: 28, borderRadius: 7, overflow: "hidden", background: "var(--bg-surface)", border: "1px solid var(--border)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Image src={logo} alt={opp.agentName} width={20} height={20} style={{ objectFit: "contain" }} unoptimized />
+          </div>
+        )}
+        <div>
+          <div style={{ fontWeight: 600, fontSize: 13.5, color: "var(--text-primary)" }}>{opp.agentName}</div>
+          <div style={{ fontSize: 11.5, color: "var(--text-muted)", marginTop: 3, fontFamily: "var(--font-geist-mono)" }}>
+            {opp.protocol} · {opp.asset}
+          </div>
         </div>
       </div>
       <div style={{ textAlign: "right" }}>
@@ -383,12 +401,20 @@ function AgentRegistryPanel({ agents, delegations, status, updatedAt }: { agents
         {agents.map((agent) => {
           const del = delegations.find((d) => d.to === agent.role);
           const s = statusStyle[agent.status] ?? statusStyle.idle;
+          const logo = PROTOCOL_LOGO[agent.role] ?? "";
           return (
             <div key={agent.id} style={{ padding: "18px 20px", borderBottom: "1px solid var(--border)", borderRight: "1px solid var(--border)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: 14, color: "var(--text-primary)" }}>{agent.name}</div>
-                  <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2, fontFamily: "var(--font-geist-mono)" }}>{agent.protocol} · {agent.chain}</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  {logo && (
+                    <div style={{ width: 32, height: 32, borderRadius: 8, overflow: "hidden", background: "var(--bg-surface)", border: "1px solid var(--border)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <Image src={logo} alt={agent.name} width={24} height={24} style={{ objectFit: "contain" }} unoptimized />
+                    </div>
+                  )}
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: "var(--text-primary)" }}>{agent.name}</div>
+                    <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2, fontFamily: "var(--font-geist-mono)" }}>{agent.protocol} · {agent.chain}</div>
+                  </div>
                 </div>
                 <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", padding: "3px 9px", borderRadius: 0, background: s.bg, color: s.color }}>{agent.status}</span>
               </div>

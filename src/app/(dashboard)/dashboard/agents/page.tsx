@@ -5,12 +5,12 @@ import { useEffect, useState } from "react";
 import type { Agent, Delegation } from "@/agents/types";
 
 const PROTOCOL_LOGO: Record<string, string> = {
-  master: "/logos/metamask.svg",
-  aave: "/logos/aave.svg",
-  uniswap: "/logos/uniswap.svg",
-  "uniswap-lp": "/logos/uniswap.svg",
-  perp: "/logos/hyperliquid.svg",
-  "perp-funding": "/logos/hyperliquid.svg",
+  master:         "/logos/metamask.svg",
+  aave:           "https://www.datocms-assets.com/166214/1758974929-1740700991-78b3ef2e096b-aave_logo.png?auto=format&fit=max&w=1200",
+  uniswap:        "/logos/uniswap.svg",
+  "uniswap-lp":   "/logos/uniswap.svg",
+  perp:           "https://play-lh.googleusercontent.com/u-5f4DodeNbu-GykUJJ2fxVoLqLWaCwbTebu7ecgsXFmXzLOCwX_2C3ilxzcrfZFBUOMm8m8G0gILwn66XwvY3A=w240-h480-rw",
+  "perp-funding": "https://play-lh.googleusercontent.com/u-5f4DodeNbu-GykUJJ2fxVoLqLWaCwbTebu7ecgsXFmXzLOCwX_2C3ilxzcrfZFBUOMm8m8G0gILwn66XwvY3A=w240-h480-rw",
 };
 
 const ROLE_COLOR: Record<string, string> = {

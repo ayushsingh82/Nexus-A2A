@@ -6,10 +6,10 @@ import dynamic from "next/dynamic";
 import type { Agent, Delegation } from "@/agents/types";
 
 const PROTOCOL_LOGO: Record<string, string> = {
-  aave:          "/logos/aave.svg",
-  "uniswap-lp":  "/logos/uniswap.svg",
-  "perp-funding": "/logos/lido.svg",
-  master:        "/logos/metamask.svg",
+  aave:           "https://www.datocms-assets.com/166214/1758974929-1740700991-78b3ef2e096b-aave_logo.png?auto=format&fit=max&w=1200",
+  "uniswap-lp":   "/logos/uniswap.svg",
+  "perp-funding": "https://play-lh.googleusercontent.com/u-5f4DodeNbu-GykUJJ2fxVoLqLWaCwbTebu7ecgsXFmXzLOCwX_2C3ilxzcrfZFBUOMm8m8G0gILwn66XwvY3A=w240-h480-rw",
+  master:         "/logos/metamask.svg",
 };
 
 const DelegationFlow = dynamic(() => import("@/components/DelegationFlow"), { ssr: false });
