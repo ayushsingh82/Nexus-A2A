@@ -1,8 +1,16 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import type { Agent, Delegation } from "@/agents/types";
+
+const PROTOCOL_LOGO: Record<string, string> = {
+  aave:          "/logos/aave.svg",
+  "uniswap-lp":  "/logos/uniswap.svg",
+  "perp-funding": "/logos/lido.svg",
+  master:        "/logos/metamask.svg",
+};
 
 const DelegationFlow = dynamic(() => import("@/components/DelegationFlow"), { ssr: false });
 
@@ -129,7 +137,13 @@ export default function DelegationsPage() {
                     <td style={{ padding: "12px 16px", fontSize: 12.5, color: "var(--text-secondary)" }}>{fromAgent?.name ?? d.from}</td>
                     <td style={{ padding: "12px 16px", fontSize: 12.5, fontWeight: 600, color: "var(--text-primary)" }}>
                       <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                        <span style={{ width: 8, height: 8, borderRadius: "50%", background: accentColor, display: "inline-block" }} />
+                        {PROTOCOL_LOGO[d.to] ? (
+                          <span style={{ width: 18, height: 18, borderRadius: 5, overflow: "hidden", background: "var(--bg-surface)", border: "1px solid var(--border)", flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+                            <Image src={PROTOCOL_LOGO[d.to]} alt={d.to} width={13} height={13} style={{ objectFit: "contain" }} unoptimized />
+                          </span>
+                        ) : (
+                          <span style={{ width: 8, height: 8, borderRadius: "50%", background: accentColor, display: "inline-block" }} />
+                        )}
                         {toAgent?.name ?? d.to}
                       </span>
                     </td>

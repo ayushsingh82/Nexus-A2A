@@ -1,7 +1,14 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import type { Agent, Delegation } from "@/agents/types";
+
+const PROTOCOL_LOGO: Record<string, string> = {
+  aave:          "/logos/aave.svg",
+  "uniswap-lp":  "/logos/uniswap.svg",
+  "perp-funding": "/logos/lido.svg",
+};
 
 function usd(n: number) {
   return "$" + n.toLocaleString(undefined, { maximumFractionDigits: 0 });
@@ -168,7 +175,13 @@ export default function RiskPage() {
                 <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)", display: "grid", gridTemplateColumns: "1fr auto auto auto", gap: 16, alignItems: "center" }}>
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ width: 10, height: 10, borderRadius: "50%", background: color, display: "inline-block" }} />
+                      {PROTOCOL_LOGO[agent.role] ? (
+                        <div style={{ width: 22, height: 22, borderRadius: 6, overflow: "hidden", background: "var(--bg-surface)", border: "1px solid var(--border)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <Image src={PROTOCOL_LOGO[agent.role]} alt={agent.name} width={16} height={16} style={{ objectFit: "contain" }} unoptimized />
+                        </div>
+                      ) : (
+                        <span style={{ width: 10, height: 10, borderRadius: "50%", background: color, display: "inline-block" }} />
+                      )}
                       <span style={{ fontWeight: 700, fontSize: 14, color: "var(--text-primary)" }}>{agent.name}</span>
                     </div>
                     <div style={{ fontSize: 11.5, color: "var(--text-muted)", marginTop: 3, fontFamily: "var(--font-geist-mono)" }}>

@@ -17,6 +17,78 @@ export default function Home() {
   );
 }
 
+/* ── Protocol flow visual for nav ───────────────────────────── */
+function NavProtocolDots() {
+  const protocols = [
+    { label: "Aave",    color: "#9333ea", img: "/logos/aave.svg" },
+    { label: "Uniswap", color: "#ff007a", img: "/logos/uniswap.svg" },
+    { label: "Lido",    color: "#00a3ff", img: "/logos/lido.svg" },
+  ];
+  const W = 188;
+  const H = 36;
+  const mmX = W - 18;
+  const mmY = H / 2;
+  const nodeYs = [8, H / 2, H - 8];
+
+  return (
+    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} fill="none" style={{ display: "block", flexShrink: 0 }}>
+      <style>{`
+        @keyframes nav-pulse { 0%,100%{opacity:0.25} 50%{opacity:0.7} }
+        @keyframes nav-travel {
+          0%   { stroke-dashoffset: 32; opacity: 0; }
+          10%  { opacity: 1; }
+          90%  { opacity: 1; }
+          100% { stroke-dashoffset: 0; opacity: 0; }
+        }
+      `}</style>
+      <defs>
+        {protocols.map((p) => (
+          <clipPath key={p.label} id={`nav-clip-${p.label}`}>
+            <circle cx="0" cy="0" r="7" />
+          </clipPath>
+        ))}
+        <clipPath id="nav-clip-mm">
+          <circle cx="0" cy="0" r="10" />
+        </clipPath>
+      </defs>
+
+      {/* Lines from protocol dots to MetaMask hub */}
+      {protocols.map((p, i) => {
+        const x1 = 16, y1 = nodeYs[i];
+        const delay = `${i * 0.5}s`;
+        return (
+          <g key={p.label}>
+            <line x1={x1} y1={y1} x2={mmX} y2={mmY} stroke={p.color} strokeWidth="1" strokeOpacity="0.2" />
+            <line
+              x1={x1} y1={y1} x2={mmX} y2={mmY}
+              stroke={p.color} strokeWidth="1.5"
+              strokeDasharray="4 28"
+              strokeDashoffset="32"
+              strokeLinecap="round"
+              style={{ animation: `nav-travel 2s ${delay} ease-in-out infinite` }}
+            />
+          </g>
+        );
+      })}
+
+      {/* Protocol nodes */}
+      {protocols.map((p, i) => (
+        <g key={p.label} transform={`translate(16, ${nodeYs[i]})`}>
+          <circle r="8" fill="white" stroke={p.color} strokeWidth="1.5" />
+          <image href={p.img} x="-7" y="-7" width="14" height="14" clipPath={`url(#nav-clip-${p.label})`} preserveAspectRatio="xMidYMid slice" />
+        </g>
+      ))}
+
+      {/* MetaMask hub */}
+      <g transform={`translate(${mmX}, ${mmY})`}>
+        <circle r="13" fill="#f6851b" opacity="0.12" />
+        <circle r="11" fill="white" stroke="#f6851b" strokeWidth="1.5" />
+        <image href="/logos/metamask.svg" x="-8" y="-8" width="16" height="16" clipPath="url(#nav-clip-mm)" preserveAspectRatio="xMidYMid meet" />
+      </g>
+    </svg>
+  );
+}
+
 /* ── Nav ────────────────────────────────────────────────────── */
 function Nav() {
   return (
@@ -26,7 +98,8 @@ function Nav() {
           <NexusLogo size={24} variant="default" />
           <span className="font-brand" style={{ fontSize: 20, color: "#000", lineHeight: 1, letterSpacing: "-0.03em" }}>Nexus-A2A</span>
         </Link>
-        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+        <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+          <NavProtocolDots />
           <Link href="/dashboard/command" style={{ fontSize: 12.5, fontWeight: 600, color: "#0001FC", textDecoration: "none", padding: "7px 14px", border: "1px solid rgba(0,1,252,0.25)", background: "rgba(0,1,252,0.04)" }}>Command ⌘</Link>
           <Link href="/dashboard" className="btn-brand-outline" style={{ fontSize: 13, padding: "8px 18px" }}>Open dashboard →</Link>
         </div>
@@ -66,15 +139,14 @@ function Hero() {
           </Link>
         </div>
         {/* stats bar */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 0, marginTop: 72, borderTop: "2px solid #000" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 0, marginTop: 72, borderTop: "2px solid #000" }}>
           {[
             { label: "Delegation type", value: "ERC-7710" },
             { label: "Permission", value: "ERC-7715" },
             { label: "Gas", value: "USDC · 1Shot" },
-            { label: "Swarm size",      value: "3 sub-agents" },
-            { label: "Command UI",      value: "Prompt → Action" },
+            { label: "Command UI", value: "Prompt → Action" },
           ].map((s, i) => (
-            <div key={s.label} style={{ padding: "20px 20px", background: "#fff", borderRight: i < 4 ? "1px solid #e0e0e0" : "none", borderBottom: "1px solid #e0e0e0" }}>
+            <div key={s.label} style={{ padding: "20px 20px", background: "#fff", borderRight: i < 3 ? "1px solid #e0e0e0" : "none", borderBottom: "1px solid #e0e0e0" }}>
               <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#8a8d99", marginBottom: 8 }}>{s.label}</div>
               <div style={{ fontSize: 15, fontWeight: 700, color: "#000", letterSpacing: "-0.02em", fontFamily: "var(--font-space), system-ui, sans-serif" }}>{s.value}</div>
             </div>

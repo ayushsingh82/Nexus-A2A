@@ -21,66 +21,6 @@ const TITLES: Record<string, { title: string; subtitle?: string }> = {
   "/dashboard/strategy":     { title: "Strategy Lab",    subtitle: "Design and test yield strategies before deployment." },
 };
 
-function MiniFlow() {
-  const W = 130;
-  const H = 44;
-  const cx = 16;
-  const cy = H / 2;
-  const agents = [
-    { x: W - 16, y: 8,       color: "#B6509E" },
-    { x: W - 16, y: H / 2,   color: "#FF007A" },
-    { x: W - 16, y: H - 8,   color: "#0891b2" },
-  ];
-
-  return (
-    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} fill="none" style={{ display: "block" }}>
-      <style>{`
-        @keyframes nx-flow {
-          0%   { stroke-dashoffset: 24; opacity: 0; }
-          15%  { opacity: 1; }
-          85%  { opacity: 1; }
-          100% { stroke-dashoffset: 0; opacity: 0; }
-        }
-      `}</style>
-
-      {/* Orchestrator node */}
-      <circle cx={cx} cy={cy} r={9} fill="#0001FC" />
-      <text x={cx} y={cy + 0.5} textAnchor="middle" dominantBaseline="central" fontSize="8" fontWeight="700" fill="#fff" fontFamily="system-ui">N</text>
-
-      {/* Edges + particles */}
-      {agents.map((a, i) => {
-        const qx = (cx + a.x) / 2;
-        const qy = a.y;
-        const pathId = `nx-p${i}`;
-        const delay = i * 0.45;
-        return (
-          <g key={i}>
-            <path
-              d={`M ${cx} ${cy} Q ${qx} ${qy} ${a.x} ${a.y}`}
-              stroke={a.color}
-              strokeWidth="1"
-              strokeOpacity="0.3"
-              fill="none"
-            />
-            <path
-              id={pathId}
-              d={`M ${cx} ${cy} Q ${qx} ${qy} ${a.x} ${a.y}`}
-              stroke={a.color}
-              strokeWidth="2"
-              strokeDasharray="4 20"
-              strokeDashoffset="24"
-              strokeLinecap="round"
-              fill="none"
-              style={{ animation: `nx-flow 1.8s ${delay}s ease-in-out infinite` }}
-            />
-            <circle cx={a.x} cy={a.y} r={5} fill={a.color} opacity="0.85" />
-          </g>
-        );
-      })}
-    </svg>
-  );
-}
-
 export default function AppShellHeader() {
   const pathname = usePathname();
   const meta = TITLES[pathname] ?? { title: "Nexus-A2A" };
@@ -98,7 +38,6 @@ export default function AppShellHeader() {
         )}
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-        <MiniFlow />
         <span className="live-pill">
           <span className="live-pill__dot" />
           swarm · base sepolia

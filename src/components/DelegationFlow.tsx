@@ -19,11 +19,17 @@ type Particle = {
   speed: number;
 };
 
+const PROTOCOL_IMAGES: Record<string, string> = {
+  "aave":       "/logos/aave.svg",
+  "uniswap-lp": "/logos/uniswap.svg",
+  "lido":       "/logos/lido.svg",
+};
+
 const NODES: Node[] = [
-  { id: "master",      label: "Orchestrator",  sublabel: "ERC-7715",        x: 120, y: 180, color: "#0001FC", isOrchestrator: true },
-  { id: "aave",        label: "Aave Agent",    sublabel: "USDC supply",     x: 370, y: 80,  color: "#9333ea" },
-  { id: "uniswap-lp",  label: "Uniswap LP",   sublabel: "USDC/ETH LP",     x: 370, y: 180, color: "#1d4ed8" },
-  { id: "perp-funding",label: "Perp Agent",    sublabel: "BTC funding",     x: 370, y: 280, color: "#0891b2" },
+  { id: "master",     label: "Orchestrator", sublabel: "ERC-7715",    x: 120, y: 180, color: "#0001FC", isOrchestrator: true },
+  { id: "aave",       label: "Aave Agent",   sublabel: "USDC supply", x: 370, y: 80,  color: "#9333ea" },
+  { id: "uniswap-lp", label: "Uniswap LP",   sublabel: "USDC/ETH LP", x: 370, y: 180, color: "#ff007a" },
+  { id: "lido",       label: "Lido Agent",   sublabel: "ETH staking", x: 370, y: 280, color: "#00a3ff" },
 ];
 
 const EDGES = [
@@ -90,8 +96,9 @@ export default function DelegationFlow({
   }, [running]);
 
   function getAgentData(nodeId: string) {
-    const agent = agents.find((a) => a.role === nodeId);
-    const del = delegations.find((d) => d.to === nodeId);
+    const roleId = nodeId === "lido" ? "perp-funding" : nodeId;
+    const agent = agents.find((a) => a.role === roleId);
+    const del = delegations.find((d) => d.to === roleId);
     return { agent, del };
   }
 
@@ -108,6 +115,11 @@ export default function DelegationFlow({
               <stop offset="0%" stopColor={n.color} stopOpacity="0.18" />
               <stop offset="100%" stopColor={n.color} stopOpacity="0.04" />
             </radialGradient>
+          ))}
+          {NODES.filter((n) => !n.isOrchestrator).map((n) => (
+            <clipPath key={`clip-${n.id}`} id={`clip-${n.id}`}>
+              <circle cx="0" cy="0" r="14" />
+            </clipPath>
           ))}
           <filter id="glow">
             <feGaussianBlur stdDeviation="2" result="blur" />
@@ -191,17 +203,29 @@ export default function DelegationFlow({
               {/* Inner circle */}
               <circle r={16} fill={node.isOrchestrator ? node.color : "white"} opacity={node.isOrchestrator ? 1 : 0.1} />
 
-              {/* Icon glyph */}
-              <text
-                textAnchor="middle"
-                dominantBaseline="central"
-                fontSize={node.isOrchestrator ? "11" : "13"}
-                fill={node.isOrchestrator ? "#fff" : node.color}
-                fontWeight="700"
-                fontFamily="system-ui, sans-serif"
-              >
-                {node.isOrchestrator ? "N" : node.id === "aave" ? "Aa" : node.id === "uniswap-lp" ? "LP" : "⊕"}
-              </text>
+              {/* Icon: text for orchestrator, protocol image for agents */}
+              {node.isOrchestrator ? (
+                <text
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  fontSize="11"
+                  fill="#fff"
+                  fontWeight="700"
+                  fontFamily="system-ui, sans-serif"
+                >
+                  N
+                </text>
+              ) : (
+                <image
+                  href={PROTOCOL_IMAGES[node.id]}
+                  x="-14"
+                  y="-14"
+                  width="28"
+                  height="28"
+                  clipPath={`url(#clip-${node.id})`}
+                  preserveAspectRatio="xMidYMid slice"
+                />
+              )}
 
               {/* Status dot */}
               <circle
