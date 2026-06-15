@@ -224,6 +224,56 @@ export async function runSwarm(): Promise<{
   };
 }
 
+// ── real tx recording ────────────────────────────────────────────────────────
+
+export function recordRealDeposit(params: {
+  agentId: string;
+  agentName?: string;
+  protocol?: string;
+  action?: string;
+  amountUsdc: number;
+  txHash: string;
+  apyBps?: number;
+}) {
+  const store = getStore();
+  const agent = store.agents.find(
+    (a) => a.id === params.agentId || a.role === params.agentId
+  );
+
+  if (agent && agent.role !== "master" && params.action !== "withdraw") {
+    agent.deployedUsdc = round(agent.deployedUsdc + params.amountUsdc, 2);
+    agent.delegatedCapUsdc = Math.max(agent.delegatedCapUsdc, agent.deployedUsdc);
+    agent.lastActionAtMs = Date.now();
+    agent.status = "active";
+    const del = store.delegations.find((d) => d.to === agent.role);
+    if (del) del.usedUsdc = agent.deployedUsdc;
+  } else if (agent && agent.role !== "master" && params.action === "withdraw") {
+    agent.deployedUsdc = round(Math.max(0, agent.deployedUsdc - params.amountUsdc), 2);
+    const del = store.delegations.find((d) => d.to === agent.role);
+    if (del) del.usedUsdc = agent.deployedUsdc;
+  }
+
+  const execution: AgentExecution = {
+    id: `EX-REAL-${randomId()}`,
+    agentId: params.agentId,
+    agentName: params.agentName ?? agent?.name ?? params.agentId,
+    protocol: params.protocol ?? agent?.protocol ?? "On-chain",
+    action: (params.action as AgentExecution["action"]) ?? "deposit",
+    amountUsdc: params.amountUsdc,
+    yieldUsdc: 0,
+    apyBps: params.apyBps ?? agent?.currentApyBps ?? 0,
+    delegationId: store.delegations.find((d) => d.to === agent?.role)?.id ?? "ERC-7710",
+    atMs: Date.now(),
+    txHash: params.txHash,
+    success: true,
+  };
+
+  store.executions.unshift(execution);
+  if (store.executions.length > 200) store.executions.length = 200;
+  store.portfolio = buildPortfolio(store.agents);
+  store.kpis.totalDeployedUsdc = store.portfolio.deployedUsdc;
+}
+
 // ── helpers / seed ───────────────────────────────────────────────────────────
 
 function fakeTxHash(): string {

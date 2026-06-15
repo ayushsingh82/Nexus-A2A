@@ -38,9 +38,10 @@ function Nav() {
 /* ── Orbit visual ───────────────────────────────────────────── */
 function ProtocolOrbit() {
   const protocols = [
-    { label: "Aave",        img: "https://www.datocms-assets.com/166214/1758974929-1740700991-78b3ef2e096b-aave_logo.png?auto=format&fit=max&w=1200", color: "#9333ea", deg: 0 },
-    { label: "Uniswap",     img: "/logos/uniswap.svg",    color: "#ff007a", deg: 120 },
-    { label: "Hyperliquid", img: "https://play-lh.googleusercontent.com/u-5f4DodeNbu-GykUJJ2fxVoLqLWaCwbTebu7ecgsXFmXzLOCwX_2C3ilxzcrfZFBUOMm8m8G0gILwn66XwvY3A=w240-h480-rw", color: "#00d4aa", deg: 240 },
+    { label: "Aave",        img: "https://www.datocms-assets.com/166214/1758974929-1740700991-78b3ef2e096b-aave_logo.png?auto=format&fit=max&w=1200", color: "#C9BAFC", deg: 0 },
+    { label: "Uniswap",     img: "/logos/uniswap.svg",    color: "#FE007A", deg: 90 },
+    { label: "Hyperliquid", img: "https://play-lh.googleusercontent.com/u-5f4DodeNbu-GykUJJ2fxVoLqLWaCwbTebu7ecgsXFmXzLOCwX_2C3ilxzcrfZFBUOMm8m8G0gILwn66XwvY3A=w240-h480-rw", color: "#010101", deg: 180 },
+    { label: "Lido",        img: "/logos/lido.svg",       color: "#00A3FF", deg: 270 },
   ];
 
   return (

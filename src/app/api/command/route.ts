@@ -86,6 +86,7 @@ function buildResponse(intent: CommandIntent) {
           type: "deposit",
           protocol: targetAgent.protocol,
           agentId: targetAgent.id,
+          agentRole: targetAgent.role,
           agentName: targetAgent.name,
           amountUsdc: intent.amount,
           expectedApyBps: targetAgent.currentApyBps,
