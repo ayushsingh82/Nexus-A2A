@@ -4,12 +4,12 @@ import { useState } from "react";
 import type { AskAnswer } from "@/graph/ask";
 
 const EXAMPLES = [
-  "What is the best cycle right now?",
-  "Is there a cycle through ETH?",
-  "Show me the treasury",
-  "How does Argo find arbitrage?",
-  "Why are there no opportunities?",
-  "How fast does it settle on Arc?",
+  "Which agent has the best APY?",
+  "How is my USDC allocated?",
+  "What has been earned so far?",
+  "How does the delegation work?",
+  "When was the last rebalance?",
+  "How does Nexus-A2A work?",
 ];
 
 export default function AskPage() {
@@ -48,8 +48,8 @@ export default function AskPage() {
       <section className="card" style={{ padding: 22 }}>
         <div className="section-title">Ask the swarm</div>
         <div style={{ fontSize: 12.5, color: "var(--text-secondary)", marginTop: 4 }}>
-          Ask anything — answers are computed live from the swarm&apos;s real state (edges,
-          cycles, treasury, receipts). Nothing is canned, and there are no fixed questions.
+          Ask anything about the swarm — APY, allocation, yield earned, delegation tree, or recent transactions.
+          Answers are computed live from the swarm&apos;s real state (agents, portfolio, executions).
         </div>
 
         <form

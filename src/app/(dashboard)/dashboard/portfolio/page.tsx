@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useAccount } from "wagmi";
 import type { Agent, Portfolio, SwarmKpis } from "@/agents/types";
 
 const PROTOCOL_LOGO: Record<string, string> = {
@@ -33,12 +34,14 @@ function usd(n: number, dp = 0) {
 }
 
 export default function PortfolioPage() {
+  const { isConnected, address } = useAccount();
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [agents, setAgents] = useState<Agent[]>([]);
   const [kpis, setKpis] = useState<SwarmKpis | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!isConnected) { setLoading(false); return; }
     async function load() {
       try {
         const [portRes, venuesRes, kpisRes] = await Promise.all([
@@ -59,10 +62,24 @@ export default function PortfolioPage() {
     load();
     const id = setInterval(load, 9000);
     return () => clearInterval(id);
-  }, []);
+  }, [isConnected, address]);
 
   const subAgents = agents.filter((a) => a.role !== "master");
   const totalDeployed = portfolio?.deployedUsdc ?? 0;
+
+  if (!isConnected) {
+    return (
+      <div className="page-content" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 320 }}>
+        <div style={{ textAlign: "center", maxWidth: 360 }}>
+          <div style={{ fontSize: 32, marginBottom: 12 }}>🔒</div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", marginBottom: 8 }}>Wallet not connected</div>
+          <div style={{ fontSize: 13.5, color: "var(--text-secondary)", lineHeight: 1.6 }}>
+            Connect MetaMask Flask to view your portfolio — positions, APY, and yield earned are tied to your wallet address.
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="page-content">
