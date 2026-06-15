@@ -313,12 +313,12 @@ function buildPortfolio(agents: Agent[]): Portfolio {
 }
 
 /**
- * Cold-start seed: pre-funded portfolio with 7 days of history.
- * First runSwarm() layered on top with live APY data.
+ * Cold-start seed: empty portfolio, no history.
+ * APY rates are seeded but deployedUsdc starts at 0 — real txs via command page populate it.
  */
 function createSeed(): Store {
   const now = Date.now();
-  const launchMs = now - 7 * 24 * 60 * 60 * 1000; // 7 days ago
+  const launchMs = now;
 
   const agents: Agent[] = [
     {
@@ -328,7 +328,7 @@ function createSeed(): Store {
       protocol: "MetaMask Smart Accounts (ERC-7710)",
       chain: "Base",
       status: "active",
-      delegatedCapUsdc: 500_000,
+      delegatedCapUsdc: 500,
       deployedUsdc: 0,
       earnedUsdc: 0,
       currentApyBps: 0,
@@ -340,10 +340,10 @@ function createSeed(): Store {
       role: "aave",
       protocol: "Aave v3",
       chain: "Base",
-      status: "active",
-      delegatedCapUsdc: 200_000,
-      deployedUsdc: 190_000,
-      earnedUsdc: round(190_000 * 0.052 / 365 * 7, 2),
+      status: "idle",
+      delegatedCapUsdc: 200,
+      deployedUsdc: 0,
+      earnedUsdc: 0,
       currentApyBps: 520,
       lastActionAtMs: now,
     },
@@ -352,11 +352,11 @@ function createSeed(): Store {
       name: "Uniswap LP Agent",
       role: "uniswap-lp",
       protocol: "Uniswap V3",
-      chain: "Ethereum",
-      status: "active",
-      delegatedCapUsdc: 150_000,
-      deployedUsdc: 142_000,
-      earnedUsdc: round(142_000 * 0.084 / 365 * 7, 2),
+      chain: "Base",
+      status: "idle",
+      delegatedCapUsdc: 150,
+      deployedUsdc: 0,
+      earnedUsdc: 0,
       currentApyBps: 840,
       lastActionAtMs: now,
     },
@@ -365,11 +365,11 @@ function createSeed(): Store {
       name: "Perp Funding Agent",
       role: "perp-funding",
       protocol: "Hyperliquid",
-      chain: "Hyperliquid",
-      status: "active",
-      delegatedCapUsdc: 150_000,
-      deployedUsdc: 138_000,
-      earnedUsdc: round(138_000 * 0.112 / 365 * 7, 2),
+      chain: "Base",
+      status: "idle",
+      delegatedCapUsdc: 150,
+      deployedUsdc: 0,
+      earnedUsdc: 0,
       currentApyBps: 1120,
       lastActionAtMs: now,
     },
@@ -380,19 +380,19 @@ function createSeed(): Store {
       id: "DEL-001",
       from: "master",
       to: "aave",
-      capUsdc: 200_000,
-      usedUsdc: 190_000,
+      capUsdc: 200,
+      usedUsdc: 0,
       permissionType: "erc20-token-periodic",
       grantedAtMs: launchMs,
-      expiresAtMs: launchMs + 30 * 24 * 60 * 60 * 1000 * 4, // 4 months
+      expiresAtMs: launchMs + 30 * 24 * 60 * 60 * 1000 * 4,
       status: "active",
     },
     {
       id: "DEL-002",
       from: "master",
       to: "uniswap-lp",
-      capUsdc: 150_000,
-      usedUsdc: 142_000,
+      capUsdc: 150,
+      usedUsdc: 0,
       permissionType: "erc20-token-periodic",
       grantedAtMs: launchMs,
       expiresAtMs: launchMs + 30 * 24 * 60 * 60 * 1000 * 4,
@@ -402,8 +402,8 @@ function createSeed(): Store {
       id: "DEL-003",
       from: "master",
       to: "perp-funding",
-      capUsdc: 150_000,
-      usedUsdc: 138_000,
+      capUsdc: 150,
+      usedUsdc: 0,
       permissionType: "erc20-token-periodic",
       grantedAtMs: launchMs,
       expiresAtMs: launchMs + 30 * 24 * 60 * 60 * 1000 * 4,
@@ -419,8 +419,8 @@ function createSeed(): Store {
     protocol: agent.protocol,
     asset: agent.role === "aave" ? "USDC" : agent.role === "uniswap-lp" ? "USDC/ETH LP" : "BTC Perp Funding",
     apyBps: agent.currentApyBps,
-    deployedUsdc: agent.deployedUsdc,
-    earnedUsdc: agent.earnedUsdc,
+    deployedUsdc: 0,
+    earnedUsdc: 0,
     status: "active",
     updatedAtMs: now,
   }));
@@ -428,40 +428,15 @@ function createSeed(): Store {
   const portfolio = buildPortfolio(agents);
 
   const kpis: SwarmKpis = {
-    totalDeployedUsdc: portfolio.deployedUsdc,
-    totalYieldUsdc: round(subAgents.reduce((s, a) => s + a.earnedUsdc, 0), 4),
-    avgApyBps: Math.round(
-      subAgents.reduce((s, a) => s + a.currentApyBps * a.deployedUsdc, 0) /
-      subAgents.reduce((s, a) => s + a.deployedUsdc, 0),
-    ),
-    activeAgents: 3,
-    rebalanceCount: 8,
+    totalDeployedUsdc: 0,
+    totalYieldUsdc: 0,
+    avgApyBps: 0,
+    activeAgents: 0,
+    rebalanceCount: 0,
     delegationsActive: 3,
-    lastSwarmAtMs: now,
-    swarmRunCount: 7,
+    lastSwarmAtMs: 0,
+    swarmRunCount: 0,
   };
 
-  // seed 12 historical executions spread over the past week
-  const executions: AgentExecution[] = [];
-  for (let i = 0; i < 12; i++) {
-    const agent = subAgents[i % subAgents.length];
-    const daysAgo = Math.floor((12 - i) * 7 / 12);
-    const dailyYield = round(agent.deployedUsdc * (agent.currentApyBps / 10_000) / 365, 4);
-    executions.push({
-      id: `EX-SEED-${i.toString().padStart(3, "0")}`,
-      agentId: agent.id,
-      agentName: agent.name,
-      protocol: agent.protocol,
-      action: "collect-yield",
-      amountUsdc: agent.deployedUsdc,
-      yieldUsdc: dailyYield,
-      apyBps: agent.currentApyBps,
-      delegationId: delegations.find((d) => d.to === agent.role)?.id ?? "DEL-?",
-      atMs: now - daysAgo * 24 * 60 * 60 * 1000,
-      txHash: fakeTxHash(),
-      success: true,
-    });
-  }
-
-  return { agents, delegations, opportunities, executions, portfolio, kpis };
+  return { agents, delegations, opportunities, executions: [], portfolio, kpis };
 }

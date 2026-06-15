@@ -3,20 +3,18 @@
 import { useState, useRef, useEffect } from "react";
 import { useAccount, useWriteContract } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
-import { parseUnits, isAddress, encodeFunctionData } from "viem";
+import { parseUnits, isAddress } from "viem";
 import { wagmiConfig, BASE_SEPOLIA_USDC } from "@/lib/wagmi";
 import { ERC20_ABI, AAVE_POOL_ABI, AAVE_POOL, UNISWAP_SWAP_ROUTER } from "@/lib/contracts";
 import NexusLogo from "@/components/NexusLogo";
 
 const SUGGESTIONS = [
   "Deploy 5 USDC to Aave",
-  "Deploy 5 USDC to best yield",
+  "Deploy 10 USDC to best yield",
   "Show my portfolio status",
-  "Rebalance from Aave to Uniswap",
   "Withdraw 2 USDC from Aave",
+  "Send 1 USDC to 0x…",
 ];
-
-type Eth = { request: (a: { method: string; params?: unknown[] }) => Promise<unknown> };
 
 type CommandResult = {
   prompt: string;
@@ -43,6 +41,7 @@ type Message = {
   role: "user" | "swarm";
   text: string;
   result?: CommandResult;
+  // undefined = ready to confirm · "pending" = tx in flight · "confirmed" | "error"
   status?: "pending" | "confirmed" | "error";
   txHash?: string;
   stepText?: string;
@@ -53,7 +52,7 @@ export default function CommandPage() {
     {
       id: "welcome",
       role: "swarm",
-      text: "Agent swarm ready. Commands go via MetaMask Flask — gas is paid in USDC using 1Shot (EIP-5792 batch + paymaster).",
+      text: "Nexus-A2A ready. Type a command — the swarm will plan the action and ask MetaMask Flask to sign each transaction on Base Sepolia.",
     },
   ]);
   const [input, setInput] = useState("");
@@ -72,122 +71,10 @@ export default function CommandPage() {
     );
   }
 
-  /* ── wallet_sendCalls (EIP-5792) — 1Shot path ─────────────── */
-  async function sendVia1Shot(
-    msgId: string,
-    agentRole: string,
-    amount: bigint,
-    addr: `0x${string}`
-  ): Promise<`0x${string}`> {
-    const eth = (window as unknown as { ethereum?: Eth }).ethereum;
-    if (!eth?.request) throw new Error("MetaMask Flask not detected in window.ethereum");
-
-    const calls =
-      agentRole === "aave"
-        ? [
-            {
-              to: BASE_SEPOLIA_USDC,
-              data: encodeFunctionData({ abi: ERC20_ABI, functionName: "approve", args: [AAVE_POOL, amount] }),
-              value: "0x0",
-            },
-            {
-              to: AAVE_POOL,
-              data: encodeFunctionData({ abi: AAVE_POOL_ABI, functionName: "supply", args: [BASE_SEPOLIA_USDC, amount, addr, 0] }),
-              value: "0x0",
-            },
-          ]
-        : [
-            {
-              to: BASE_SEPOLIA_USDC,
-              data: encodeFunctionData({ abi: ERC20_ABI, functionName: "approve", args: [UNISWAP_SWAP_ROUTER, amount] }),
-              value: "0x0",
-            },
-          ];
-
-    // Discover paymaster capabilities (USDC gas via 1Shot)
-    let capabilities: Record<string, unknown> = {};
-    try {
-      const caps = await eth.request({ method: "wallet_getCapabilities", params: [addr] }) as Record<string, { paymasterService?: { supported?: boolean; url?: string } }>;
-      const ps = caps?.[`0x${(84532).toString(16)}`]?.paymasterService;
-      if (ps?.supported && ps?.url) capabilities = { paymasterService: { url: ps.url } };
-    } catch { /* wallet doesn't support getCapabilities */ }
-
-    setStep(msgId,
-      agentRole === "aave"
-        ? "Confirm Approve + Supply in MetaMask Flask…"
-        : "Confirm Approve in MetaMask Flask…"
-    );
-
-    const batchId = await eth.request({
-      method: "wallet_sendCalls",
-      params: [{
-        version: "2.0.0",
-        chainId: `0x${(84532).toString(16)}`,
-        from: addr,
-        calls,
-        capabilities,
-      }],
-    }) as string;
-
-    setStep(msgId, "Waiting for on-chain confirmation…");
-
-    for (let i = 0; i < 60; i++) {
-      await new Promise((r) => setTimeout(r, 2000));
-      const res = await eth.request({ method: "wallet_getCallsStatus", params: [batchId] }) as {
-        status: number;
-        receipts?: Array<{ transactionHash: `0x${string}` }>;
-      };
-      if (res.status === 200) {
-        return res.receipts?.at(-1)?.transactionHash ?? (`0x${batchId}` as `0x${string}`);
-      }
-      if (res.status >= 400) throw new Error(`Batch failed (status ${res.status})`);
-    }
-    throw new Error("Transaction timed out after 120s");
-  }
-
-  /* ── fallback: individual writeContractAsync ───────────────── */
-  async function fallbackDeposit(
-    msgId: string,
-    agentRole: string,
-    amount: bigint,
-    addr: `0x${string}`
-  ): Promise<`0x${string}`> {
-    if (agentRole === "aave") {
-      setStep(msgId, "Step 1/2 — Approve USDC in MetaMask Flask…");
-      const approveTx = await writeContractAsync({
-        address: BASE_SEPOLIA_USDC,
-        abi: ERC20_ABI,
-        functionName: "approve",
-        args: [AAVE_POOL, amount],
-      });
-      setStep(msgId, "Step 1/2 — Waiting for approval…");
-      await waitForTransactionReceipt(wagmiConfig, { hash: approveTx, confirmations: 1 });
-      setStep(msgId, "Step 2/2 — Supply to Aave in MetaMask Flask…");
-      const supplyTx = await writeContractAsync({
-        address: AAVE_POOL,
-        abi: AAVE_POOL_ABI,
-        functionName: "supply",
-        args: [BASE_SEPOLIA_USDC, amount, addr, 0],
-      });
-      setStep(msgId, "Step 2/2 — Waiting for supply confirmation…");
-      await waitForTransactionReceipt(wagmiConfig, { hash: supplyTx, confirmations: 1 });
-      return supplyTx;
-    }
-    setStep(msgId, "Approve USDC in MetaMask Flask…");
-    const tx = await writeContractAsync({
-      address: BASE_SEPOLIA_USDC,
-      abi: ERC20_ABI,
-      functionName: "approve",
-      args: [UNISWAP_SWAP_ROUTER, amount],
-    });
-    await waitForTransactionReceipt(wagmiConfig, { hash: tx, confirmations: 1 });
-    return tx;
-  }
-
-  /* ── main execute ──────────────────────────────────────────── */
   async function executeAction(msgId: string, action: CommandResult["action"]) {
     if (!action || !isConnected || !address) return;
 
+    // Mark as in-flight — shows spinner on the button
     setMessages((m) =>
       m.map((msg) => msg.id === msgId ? { ...msg, status: "pending" as const, stepText: "Preparing…" } : msg)
     );
@@ -199,42 +86,69 @@ export default function CommandPage() {
       const agentRole = action.agentRole ?? action.agentId ?? "aave";
 
       if (action.type === "deposit") {
-        try {
-          // Primary path: wallet_sendCalls via 1Shot (single popup, USDC gas)
-          txHash = await sendVia1Shot(msgId, agentRole, amount, address);
-        } catch {
-          // Fallback: individual approve + action
-          txHash = await fallbackDeposit(msgId, agentRole, amount, address);
+        if (agentRole === "aave") {
+          // 1. Approve USDC to Aave Pool
+          setStep(msgId, "Step 1/2 — Approve USDC in MetaMask Flask…");
+          const approveTx = await writeContractAsync({
+            address: BASE_SEPOLIA_USDC,
+            abi: ERC20_ABI,
+            functionName: "approve",
+            args: [AAVE_POOL, amount],
+          });
+          setStep(msgId, "Step 1/2 — Waiting for approval…");
+          await waitForTransactionReceipt(wagmiConfig, { hash: approveTx, confirmations: 1 });
+
+          // 2. Supply to Aave
+          setStep(msgId, "Step 2/2 — Supply to Aave in MetaMask Flask…");
+          txHash = await writeContractAsync({
+            address: AAVE_POOL,
+            abi: AAVE_POOL_ABI,
+            functionName: "supply",
+            args: [BASE_SEPOLIA_USDC, amount, address, 0],
+          });
+          setStep(msgId, "Step 2/2 — Waiting for confirmation…");
+          await waitForTransactionReceipt(wagmiConfig, { hash: txHash, confirmations: 1 });
+
+        } else {
+          // Approve USDC for any other protocol
+          setStep(msgId, "Approve USDC in MetaMask Flask…");
+          txHash = await writeContractAsync({
+            address: BASE_SEPOLIA_USDC,
+            abi: ERC20_ABI,
+            functionName: "approve",
+            args: [UNISWAP_SWAP_ROUTER, amount],
+          });
+          setStep(msgId, "Waiting for confirmation…");
+          await waitForTransactionReceipt(wagmiConfig, { hash: txHash, confirmations: 1 });
         }
+
       } else if (action.type === "withdraw") {
-        setStep(msgId, "Confirm withdrawal in MetaMask Flask…");
+        setStep(msgId, "Withdraw from Aave in MetaMask Flask…");
         txHash = await writeContractAsync({
           address: AAVE_POOL,
           abi: AAVE_POOL_ABI,
           functionName: "withdraw",
           args: [BASE_SEPOLIA_USDC, amount, address],
         });
+        setStep(msgId, "Waiting for confirmation…");
         await waitForTransactionReceipt(wagmiConfig, { hash: txHash, confirmations: 1 });
+
       } else if (action.type === "transfer" && action.to && isAddress(action.to)) {
-        setStep(msgId, "Confirm USDC send in MetaMask Flask…");
+        setStep(msgId, "Send USDC in MetaMask Flask…");
         txHash = await writeContractAsync({
           address: BASE_SEPOLIA_USDC,
           abi: ERC20_ABI,
           functionName: "transfer",
           args: [action.to as `0x${string}`, amount],
         });
+        setStep(msgId, "Waiting for confirmation…");
         await waitForTransactionReceipt(wagmiConfig, { hash: txHash, confirmations: 1 });
+
       } else {
-        setStep(msgId, "Confirm in MetaMask Flask…");
-        txHash = await writeContractAsync({
-          address: BASE_SEPOLIA_USDC,
-          abi: ERC20_ABI,
-          functionName: "approve",
-          args: [UNISWAP_SWAP_ROUTER, amount],
-        });
-        await waitForTransactionReceipt(wagmiConfig, { hash: txHash, confirmations: 1 });
+        throw new Error(`Unsupported action: ${action.type}`);
       }
 
+      // Record in store so portfolio + history update
       await fetch("/api/execute", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -255,10 +169,12 @@ export default function CommandPage() {
         )
       );
     } catch (err) {
-      const message = err instanceof Error ? err.message.slice(0, 140) : "Transaction failed.";
+      const raw = err instanceof Error ? err.message : String(err);
+      // Strip long hex data from MetaMask error messages
+      const clean = raw.replace(/0x[0-9a-fA-F]{40,}/g, "").slice(0, 160).trim();
       setMessages((m) =>
         m.map((msg) =>
-          msg.id === msgId ? { ...msg, status: "error" as const, text: message, stepText: undefined } : msg
+          msg.id === msgId ? { ...msg, status: "error" as const, text: clean || "Transaction failed.", stepText: undefined } : msg
         )
       );
     }
@@ -276,12 +192,17 @@ export default function CommandPage() {
         body: JSON.stringify({ prompt: text }),
       });
       const data = (await res.json()) as CommandResult;
+      // Do NOT set status here — button must show "Confirm in MetaMask Flask →"
+      // Status only becomes "pending" when the user clicks the confirm button
       setMessages((m) => [
         ...m,
-        { id: `s-${Date.now()}`, role: "swarm", text: data.summary, result: data, status: data.action ? "pending" : undefined },
+        { id: `s-${Date.now()}`, role: "swarm", text: data.summary, result: data },
       ]);
     } catch {
-      setMessages((m) => [...m, { id: `e-${Date.now()}`, role: "swarm", text: "Something went wrong. Please try again." }]);
+      setMessages((m) => [
+        ...m,
+        { id: `e-${Date.now()}`, role: "swarm", text: "Something went wrong. Please try again." },
+      ]);
     } finally {
       setLoading(false);
     }
@@ -322,7 +243,7 @@ export default function CommandPage() {
       <div style={{ borderTop: "1px solid var(--border)", padding: "16px 28px", background: "var(--bg-elevated)" }}>
         {!isConnected && (
           <div style={{ marginBottom: 10, padding: "8px 12px", background: "rgba(0,1,252,0.05)", border: "1px solid rgba(0,1,252,0.15)", fontSize: 12, color: "#0001FC" }}>
-            Connect MetaMask Flask — transactions use EIP-5792 batch + 1Shot paymaster (gas in USDC, no ETH needed).
+            Connect MetaMask Flask — each transaction will open a MetaMask popup on Base Sepolia.
           </div>
         )}
         <div style={{ display: "flex", gap: 10, alignItems: "flex-end" }}>
@@ -331,7 +252,7 @@ export default function CommandPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendPrompt(input); } }}
-              placeholder="Deploy 5 USDC to Aave · Send 2 USDC to 0x… · Show portfolio"
+              placeholder="Deploy 5 USDC to Aave · Withdraw 2 USDC · Send 1 USDC to 0x…"
               rows={2}
               style={{ display: "block", width: "100%", resize: "none", border: "none", outline: "none", background: "transparent", fontSize: 13.5, color: "var(--text-primary)", padding: "10px 12px", fontFamily: "inherit", lineHeight: 1.5 }}
             />
@@ -345,7 +266,7 @@ export default function CommandPage() {
           </button>
         </div>
         <div style={{ marginTop: 6, fontSize: 11, color: "var(--text-muted)" }}>
-          ↵ to send · Shift+↵ newline · EIP-5792 batch via MetaMask Flask · gas in USDC via 1Shot
+          ↵ to send · Shift+↵ newline · transactions signed in MetaMask Flask · Base Sepolia testnet
         </div>
       </div>
     </div>
@@ -368,44 +289,61 @@ function ChatMessage({ msg, isConnected, onExecute }: {
   }
 
   const result = msg.result;
+  const hasAction = !!result?.action;
+  const isPending = msg.status === "pending";
+  const isConfirmed = msg.status === "confirmed";
+  const isError = msg.status === "error";
 
   return (
     <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
       <SwarmAvatar />
       <div style={{ flex: 1, maxWidth: 600 }}>
+        {/* Main message text */}
         <div style={{ padding: "12px 14px", background: "var(--bg-elevated)", border: "1px solid var(--border)", fontSize: 13.5, color: "var(--text-primary)", lineHeight: 1.6 }}>
           {msg.text}
         </div>
 
-        {result?.action && msg.status !== "confirmed" && (
+        {/* Action preview + confirm button — hide once confirmed */}
+        {hasAction && !isConfirmed && (
           <div style={{ marginTop: 8, padding: "14px 16px", background: "var(--bg-surface)", border: "1px solid rgba(0,1,252,0.18)", borderLeft: "3px solid #0001FC" }}>
-            <ActionPreview action={result.action} />
-            {msg.status === "error" ? (
-              <div style={{ marginTop: 10, fontSize: 12, color: "#dc2626" }}>
-                Error: {msg.text}
+            <ActionPreview action={result!.action!} />
+
+            {isError ? (
+              <div style={{ marginTop: 10, padding: "8px 12px", background: "rgba(220,38,38,0.06)", border: "1px solid rgba(220,38,38,0.2)", fontSize: 12, color: "#dc2626" }}>
+                {msg.text}
               </div>
             ) : (
               <button
-                onClick={() => onExecute(result.action)}
-                disabled={!isConnected || msg.status === "pending"}
-                style={{ marginTop: 12, display: "inline-flex", alignItems: "center", gap: 7, padding: "8px 16px", background: !isConnected ? "var(--bg-base)" : "#0001FC", color: !isConnected ? "var(--text-muted)" : "#fff", border: !isConnected ? "1px solid var(--border)" : "none", cursor: !isConnected || msg.status === "pending" ? "not-allowed" : "pointer", fontSize: 12.5, fontWeight: 700, fontFamily: "inherit", opacity: msg.status === "pending" ? 0.85 : 1 }}
+                onClick={() => !isPending && onExecute(result!.action)}
+                disabled={!isConnected || isPending}
+                style={{
+                  marginTop: 12,
+                  display: "inline-flex", alignItems: "center", gap: 7,
+                  padding: "9px 18px",
+                  background: !isConnected ? "var(--bg-base)" : isPending ? "rgba(0,1,252,0.7)" : "#0001FC",
+                  color: !isConnected ? "var(--text-muted)" : "#fff",
+                  border: !isConnected ? "1px solid var(--border)" : "none",
+                  cursor: !isConnected || isPending ? "not-allowed" : "pointer",
+                  fontSize: 13, fontWeight: 700, fontFamily: "inherit",
+                }}
               >
-                {msg.status === "pending" ? (
-                  <><SpinnerIcon /> {msg.stepText ?? "Submitting…"}</>
+                {isPending ? (
+                  <><SpinnerIcon /> {msg.stepText ?? "Waiting…"}</>
                 ) : !isConnected ? (
                   "Connect MetaMask Flask to confirm"
                 ) : (
-                  <>Confirm in MetaMask Flask →</>
+                  "Confirm in MetaMask Flask →"
                 )}
               </button>
             )}
           </div>
         )}
 
-        {msg.status === "confirmed" && msg.txHash && (
+        {/* Confirmed receipt */}
+        {isConfirmed && msg.txHash && (
           <div style={{ marginTop: 8, padding: "12px 16px", background: "rgba(22,163,74,0.06)", border: "1px solid rgba(22,163,74,0.2)", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             <span style={{ color: "#16a34a", fontWeight: 700, fontSize: 13 }}>✓ Confirmed on Base Sepolia</span>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-muted)" }}>
+            <span style={{ fontFamily: "monospace", fontSize: 11, color: "var(--text-muted)" }}>
               {msg.txHash.slice(0, 18)}…{msg.txHash.slice(-6)}
             </span>
             <a
@@ -419,7 +357,8 @@ function ChatMessage({ msg, isConnected, onExecute }: {
           </div>
         )}
 
-        {result?.suggestions && (
+        {/* Suggestions */}
+        {result?.suggestions && !hasAction && (
           <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
             {result.suggestions.slice(0, 4).map((s) => (
               <button key={s} style={{ padding: "4px 10px", fontSize: 11.5, background: "var(--bg-surface)", border: "1px solid var(--border)", color: "var(--text-secondary)", cursor: "pointer", fontFamily: "inherit" }}>
@@ -434,6 +373,7 @@ function ChatMessage({ msg, isConnected, onExecute }: {
 }
 
 function ActionPreview({ action }: { action: NonNullable<CommandResult["action"]> }) {
+  const agentRole = action.agentRole ?? action.agentId ?? "";
   const rows: [string, string][] = [];
 
   if (action.type === "deposit") {
@@ -441,24 +381,28 @@ function ActionPreview({ action }: { action: NonNullable<CommandResult["action"]
     if (action.agentName) rows.push(["Agent", action.agentName]);
     if (action.amountUsdc) rows.push(["Amount", `$${action.amountUsdc} USDC`]);
     if (action.expectedApyBps) rows.push(["Expected APY", `${(action.expectedApyBps / 100).toFixed(2)}%`]);
-    const role = action.agentRole ?? action.agentId ?? "";
-    if (role === "aave") rows.push(["Steps", "Approve USDC → Supply to Aave Pool (1 Flask popup)"]);
-    else rows.push(["Steps", "Approve USDC (1 Flask popup)"]);
+    if (agentRole === "aave") {
+      rows.push(["Steps", "2 MetaMask popups: Approve USDC → Supply to Aave"]);
+    } else {
+      rows.push(["Steps", "1 MetaMask popup: Approve USDC"]);
+    }
   } else if (action.type === "withdraw") {
-    rows.push(["Action", "Withdraw USDC"]);
-    if (action.protocol) rows.push(["From", action.protocol]);
+    rows.push(["Action", "Withdraw from Aave"]);
     if (action.amountUsdc) rows.push(["Amount", `$${action.amountUsdc} USDC`]);
+    rows.push(["Steps", "1 MetaMask popup: Aave withdraw"]);
+  } else if (action.type === "transfer") {
+    rows.push(["Action", "Send USDC"]);
+    if (action.to) rows.push(["To", `${action.to.slice(0, 10)}…${action.to.slice(-4)}`]);
+    if (action.amountUsdc) rows.push(["Amount", `$${action.amountUsdc} USDC`]);
+    rows.push(["Steps", "1 MetaMask popup: USDC transfer"]);
   } else if (action.type === "redelegate") {
     rows.push(["Action", "ERC-7710 Redelegate"]);
     if (action.protocol) rows.push(["Route", String(action.protocol)]);
-  } else if (action.type === "transfer") {
-    rows.push(["Action", "USDC Transfer"]);
-    if (action.to) rows.push(["To", `${action.to.slice(0, 10)}…${action.to.slice(-4)}`]);
-    if (action.amountUsdc) rows.push(["Amount", `$${action.amountUsdc} USDC`]);
   }
 
+  rows.push(["Chain", "Base Sepolia (testnet)"]);
   if (action.estimatedGasUsdc !== undefined) {
-    rows.push(["Est. gas", `~$${action.estimatedGasUsdc} USDC via 1Shot`]);
+    rows.push(["Est. gas", `~${action.estimatedGasUsdc * 100} gwei in ETH`]);
   }
 
   return (
@@ -470,8 +414,8 @@ function ActionPreview({ action }: { action: NonNullable<CommandResult["action"]
         <tbody>
           {rows.map(([k, v]) => (
             <tr key={k} style={{ borderBottom: "1px solid var(--border)" }}>
-              <td style={{ padding: "6px 0", fontSize: 12, color: "var(--text-muted)", width: 130 }}>{k}</td>
-              <td style={{ padding: "6px 0", fontSize: 12.5, fontWeight: 600, color: "var(--text-primary)", fontFamily: "var(--font-mono)" }}>{v}</td>
+              <td style={{ padding: "6px 0", fontSize: 12, color: "var(--text-muted)", width: 130, verticalAlign: "top" }}>{k}</td>
+              <td style={{ padding: "6px 0", fontSize: 12.5, fontWeight: 600, color: "var(--text-primary)", fontFamily: "monospace" }}>{v}</td>
             </tr>
           ))}
         </tbody>
