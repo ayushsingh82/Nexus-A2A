@@ -74,7 +74,7 @@ export default function PortfolioPage() {
           <div style={{ fontSize: 32, marginBottom: 12 }}>🔒</div>
           <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", marginBottom: 8 }}>Wallet not connected</div>
           <div style={{ fontSize: 13.5, color: "var(--text-secondary)", lineHeight: 1.6 }}>
-            Connect MetaMask Flask to view your portfolio — positions, APY, and yield earned are tied to your wallet address.
+            Connect MetaMask to view your portfolio — positions, APY, and yield earned are tied to your wallet address.
           </div>
         </div>
       </div>

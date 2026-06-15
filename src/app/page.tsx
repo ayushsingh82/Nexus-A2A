@@ -174,7 +174,7 @@ function Ticker() {
 /* ── Agent loop ─────────────────────────────────────────────── */
 function AgentLoop() {
   const steps = [
-    { n: "01", title: "Grant",       body: "User connects MetaMask Flask, upgrades to a Smart Account (EIP-7702), and grants ERC-7715 permission: spend up to 500k USDC/week for yield strategies." },
+    { n: "01", title: "Grant",       body: "User connects MetaMask, upgrades to a Smart Account (EIP-7702), and grants ERC-7715 permission: spend up to 500k USDC/week for yield strategies." },
     { n: "02", title: "Redelegate",  body: "Master Orchestrator receives the permission and issues ERC-7710 subdelegations — Aave Agent gets 200k cap, Uniswap LP gets 150k, Perp Funding gets 150k." },
     { n: "03", title: "Deploy",      body: "Each sub-agent deploys USDC within its cap: Aave deposit, Uniswap V3 USDC/ETH LP position, and Hyperliquid perp funding-rate capture." },
     { n: "04", title: "Earn",        body: "Agents collect yield continuously — Aave interest, Uniswap LP fees, and Hyperliquid funding rate — all denominated in USDC." },
@@ -250,7 +250,7 @@ function MetaMaskStack() {
     { name: "1Shot Relayer",      role: "Executes all ERC-7710 transactions. Gas paid in USDC — agents never need ETH.", load: "core" },
     { name: "Venice AI",          role: "On-chain AI for market intelligence. Master uses Venice to decide rebalance targets.", load: "unique" },
     { name: "x402 Protocol",      role: "Machine-to-machine payments. Sub-agents pay for Venice queries via x402 micropayments.", load: "unique" },
-    { name: "MetaMask Flask",     role: "Required wallet. Supports ERC-7715 advanced permissions + EIP-7702 auto-upgrade.", load: "core" },
+    { name: "MetaMask",     role: "Required wallet. Supports ERC-7715 advanced permissions + EIP-7702 auto-upgrade.", load: "core" },
   ];
   const loadStyle: Record<string, React.CSSProperties> = {
     critical: { background: "rgba(0, 1, 252, 0.12)", color: "var(--teal-text)",       borderColor: "rgba(0, 1, 252, 0.32)" },

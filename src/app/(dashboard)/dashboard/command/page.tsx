@@ -19,7 +19,7 @@ type EthReq = { request: (a: { method: string; params?: unknown[] }) => Promise<
 
 function getEth(): EthReq {
   const eth = (window as unknown as { ethereum?: EthReq }).ethereum;
-  if (!eth?.request) throw new Error("MetaMask Flask not found in window.ethereum.");
+  if (!eth?.request) throw new Error("MetaMask not found in window.ethereum.");
   return eth;
 }
 
@@ -71,7 +71,7 @@ export default function CommandPage() {
     {
       id: "welcome",
       role: "swarm",
-      text: "Nexus-A2A ready. Type a command — the swarm plans the action and calls MetaMask Flask to sign each tx on Base Sepolia.",
+      text: "Nexus-A2A ready. Type a command — the swarm plans the action and calls MetaMask to sign each tx on Base Sepolia.",
     },
   ]);
   const [input, setInput] = useState("");
@@ -105,7 +105,7 @@ export default function CommandPage() {
           ]
         : [{ to: BASE_SEPOLIA_USDC, data: encodeFunctionData({ abi: ERC20_ABI, functionName: "approve", args: [UNISWAP_SWAP_ROUTER, amount] }), value: "0x0" }];
 
-    // Discover paymaster (3 s timeout — don't block if Flask doesn't support it)
+    // Discover paymaster (3 s timeout — don't block if wallet doesn't support it)
     let capabilities: Record<string, unknown> = {};
     try {
       const caps = await Promise.race([
@@ -116,7 +116,7 @@ export default function CommandPage() {
       if (ps?.supported && ps?.url) capabilities = { paymasterService: { url: ps.url } };
     } catch { /* not supported */ }
 
-    setStep(msgId, agentRole === "aave" ? "Confirm Approve + Supply in MetaMask Flask…" : "Confirm in MetaMask Flask…");
+    setStep(msgId, agentRole === "aave" ? "Confirm Approve + Supply in MetaMask…" : "Confirm in MetaMask…");
 
     // wallet_sendCalls — 30 s timeout
     const batchId = await Promise.race([
@@ -148,7 +148,7 @@ export default function CommandPage() {
     const eth = getEth();
 
     if (agentRole === "aave") {
-      setStep(msgId, "Step 1/2 — Approve USDC · confirm in MetaMask Flask…");
+      setStep(msgId, "Step 1/2 — Approve USDC · confirm in MetaMask…");
       const approveHash = await eth.request({
         method: "eth_sendTransaction",
         params: [{ from: addr, to: BASE_SEPOLIA_USDC, data: encodeFunctionData({ abi: ERC20_ABI, functionName: "approve", args: [AAVE_POOL, amount] }) }],
@@ -156,7 +156,7 @@ export default function CommandPage() {
       setStep(msgId, "Step 1/2 — Waiting for approval…");
       await waitForTx(approveHash);
 
-      setStep(msgId, "Step 2/2 — Supply to Aave · confirm in MetaMask Flask…");
+      setStep(msgId, "Step 2/2 — Supply to Aave · confirm in MetaMask…");
       const supplyHash = await eth.request({
         method: "eth_sendTransaction",
         params: [{ from: addr, to: AAVE_POOL, data: encodeFunctionData({ abi: AAVE_POOL_ABI, functionName: "supply", args: [BASE_SEPOLIA_USDC, amount, addr, 0] }) }],
@@ -166,7 +166,7 @@ export default function CommandPage() {
       return supplyHash;
     }
 
-    setStep(msgId, "Approve USDC · confirm in MetaMask Flask…");
+    setStep(msgId, "Approve USDC · confirm in MetaMask…");
     const hash = await eth.request({
       method: "eth_sendTransaction",
       params: [{ from: addr, to: BASE_SEPOLIA_USDC, data: encodeFunctionData({ abi: ERC20_ABI, functionName: "approve", args: [UNISWAP_SWAP_ROUTER, amount] }) }],
@@ -199,7 +199,7 @@ export default function CommandPage() {
         }
 
       } else if (action.type === "withdraw") {
-        setStep(msgId, "Withdraw from Aave · confirm in MetaMask Flask…");
+        setStep(msgId, "Withdraw from Aave · confirm in MetaMask…");
         txHash = await eth.request({
           method: "eth_sendTransaction",
           params: [{ from: address, to: AAVE_POOL, data: encodeFunctionData({ abi: AAVE_POOL_ABI, functionName: "withdraw", args: [BASE_SEPOLIA_USDC, amount, address] }) }],
@@ -208,7 +208,7 @@ export default function CommandPage() {
         await waitForTx(txHash);
 
       } else if (action.type === "transfer" && action.to && isAddress(action.to)) {
-        setStep(msgId, "Send USDC · confirm in MetaMask Flask…");
+        setStep(msgId, "Send USDC · confirm in MetaMask…");
         txHash = await eth.request({
           method: "eth_sendTransaction",
           params: [{ from: address, to: BASE_SEPOLIA_USDC, data: encodeFunctionData({ abi: ERC20_ABI, functionName: "transfer", args: [action.to as `0x${string}`, amount] }) }],
@@ -243,7 +243,7 @@ export default function CommandPage() {
     try {
       const res = await fetch("/api/command", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: text }) });
       const data = (await res.json()) as CommandResult;
-      // No status here — user must click "Confirm in MetaMask Flask →" to trigger tx
+      // No status here — user must click "Confirm in MetaMask →" to trigger tx
       setMessages((m) => [...m, { id: `s-${Date.now()}`, role: "swarm", text: data.summary, result: data }]);
     } catch {
       setMessages((m) => [...m, { id: `e-${Date.now()}`, role: "swarm", text: "Something went wrong. Try again." }]);
@@ -283,7 +283,7 @@ export default function CommandPage() {
       <div style={{ borderTop: "1px solid var(--border)", padding: "16px 28px", background: "var(--bg-elevated)" }}>
         {!isConnected && (
           <div style={{ marginBottom: 10, padding: "8px 12px", background: "rgba(0,1,252,0.05)", border: "1px solid rgba(0,1,252,0.15)", fontSize: 12, color: "#0001FC" }}>
-            Connect MetaMask Flask — each tx opens a popup. If your Smart Account is active, gas is paid in USDC via 1Shot.
+            Connect MetaMask — each tx opens a popup. If your Smart Account is active, gas is paid in USDC via 1Shot.
           </div>
         )}
         <div style={{ display: "flex", gap: 10, alignItems: "flex-end" }}>
@@ -353,9 +353,9 @@ function ChatMessage({ msg, isConnected, onExecute }: { msg: Message; isConnecte
                 {isPending ? (
                   <><SpinnerIcon /> {msg.stepText ?? "Waiting…"}</>
                 ) : !isConnected ? (
-                  "Connect MetaMask Flask first"
+                  "Connect MetaMask first"
                 ) : (
-                  "Confirm in MetaMask Flask →"
+                  "Confirm in MetaMask →"
                 )}
               </button>
             )}

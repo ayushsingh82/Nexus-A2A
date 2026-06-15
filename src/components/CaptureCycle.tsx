@@ -10,7 +10,7 @@ type SwarmResult = {
 };
 
 const STEPS = [
-  { title: "Check Smart Account",   detail: "Verify ERC-7715 permission from MetaMask Flask wallet" },
+  { title: "Check Smart Account",   detail: "Verify ERC-7715 permission from MetaMask wallet" },
   { title: "Fetch live APY rates",  detail: "DeFiLlama · Aave v3 · Uniswap V3 · Hyperliquid funding" },
   { title: "Master agent decides",  detail: "Compare APYs — pick rebalance target if spread > 100 bps" },
   { title: "Redelegate via ERC-7710", detail: "Master issues subdelegations to sub-agents with new caps" },
