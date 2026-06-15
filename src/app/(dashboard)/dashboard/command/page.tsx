@@ -229,8 +229,15 @@ export default function CommandPage() {
 
       setMessages((m) => m.map((msg) => msg.id === msgId ? { ...msg, status: "confirmed" as const, txHash, stepText: undefined } : msg));
     } catch (err) {
-      const raw = err instanceof Error ? err.message : String(err);
-      const clean = raw.replace(/0x[0-9a-fA-F]{40,}/g, "…").slice(0, 180).trim();
+      // MetaMask throws plain objects (not Error instances), e.g. { code: 4001, message: "..." }
+      const mmErr = err as { code?: number; message?: string };
+      if (mmErr?.code === 4001) {
+        // User rejected — reset so they can try again
+        setMessages((m) => m.map((msg) => msg.id === msgId ? { ...msg, status: undefined, stepText: undefined } : msg));
+        return;
+      }
+      const raw = mmErr?.message ?? (err instanceof Error ? err.message : "Transaction failed.");
+      const clean = String(raw).replace(/0x[0-9a-fA-F]{40,}/g, "…").slice(0, 180).trim();
       setMessages((m) => m.map((msg) => msg.id === msgId ? { ...msg, status: "error" as const, text: clean || "Transaction failed.", stepText: undefined } : msg));
     }
   }
